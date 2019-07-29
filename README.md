@@ -1,4 +1,4 @@
-## Desrciption
+## Description
 
 This project is a fork of the [RIOT operating system](https://www.riot-os.org/) adding support for 64-bit target platforms to the original implementation.
 
