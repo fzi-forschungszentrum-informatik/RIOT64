@@ -1,0 +1,57 @@
+From b37c3d715ddcdfbdeffbb4cadf915711551ff5fe Mon Sep 17 00:00:00 2001
+From: Leon Hielscher <Hielscher@fzi.de>
+Date: Tue, 6 Nov 2018 17:29:09 +0100
+Subject: [PATCH] Use stdint types
+
+---
+ integer.h | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/integer.h b/integer.h
+index 553fc44..635ddc5 100644
+--- a/integer.h
++++ b/integer.h
+@@ -10,12 +10,16 @@
+ #include <windows.h>
+ #include <tchar.h>
+ typedef unsigned __int64 QWORD;
++#define PRI_FFS_UINT    u
+ 
+ 
+ #else			/* Embedded platform */
+ 
++#ifdef FATFS_NO_STDINT
++
+ /* These types MUST be 16-bit or 32-bit */
+ /* typedef int				INT; <-- this was commented out because of a name clash */
++#define PRI_FFS_UINT    u
+ typedef unsigned int	UINT;
+ 
+ /* This type MUST be 8-bit */
+@@ -33,6 +37,23 @@ typedef unsigned long	DWORD;
+ /* This type MUST be 64-bit (Remove this for ANSI C (C89) compatibility) */
+ typedef unsigned long long QWORD;
+ 
++#else
++
++#include <stdint.h>
++
++#define PRI_FFS_UINT    PRIu32
++
++typedef uint32_t       UINT;
++typedef uint8_t                BYTE;
++typedef int16_t                SHORT;
++typedef uint16_t       WORD;
++typedef uint16_t       WCHAR;
++typedef int32_t                LONG;
++typedef uint32_t       DWORD;
++typedef uint64_t       QWORD;
++
++#endif /* FATFS_NO_STDINT */
++
+ #endif
+ 
+ #endif
+-- 
+2.7.4
+

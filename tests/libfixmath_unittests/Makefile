@@ -11,12 +11,12 @@ BOARD_INSUFFICIENT_MEMORY := nucleo-f031k6 nucleo-f042k6 nucleo-l031k6
 
 USEMODULE += libfixmath-unittests
 
-ifneq (,$(filter native,$(BOARD)))
+ifneq (,$(filter $(BOARD), native native64))
   export LINKFLAGS += -lm
 endif
 
 USEMODULE += printf_float
 
-TEST_ON_CI_WHITELIST += native
+TEST_ON_CI_WHITELIST += native native64
 
 include $(RIOTBASE)/Makefile.include

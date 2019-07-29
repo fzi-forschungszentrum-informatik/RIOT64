@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017 Gilles DOFFE <gdoffe@gmail.com>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -22,20 +23,21 @@
  */
 
 #include <stdio.h>
+#include <inttypes.h>
 
-#include "periph/qdec.h"
 #include "xtimer.h"
+#include "periph/qdec.h"
 
 void handler(void *arg)
 {
-    qdec_t qdec = (qdec_t)arg;
+    qdec_t qdec = (qdec_t)(uintptr_t)arg;
     printf("QDEC %u counter overflow : reset counter\n", qdec);
     qdec_read_and_reset(QDEC_DEV(qdec));
 }
 
 int main(void)
 {
-    uint32_t i = 0;
+    uintptr_t i = 0;
     int32_t value = 0;
     puts("Welcome into Quadrature Decoder (QDEC) test program.");
     puts("This program will count pulses on all available QDEC channels");
@@ -62,3 +64,4 @@ int main(void)
 
     return 0;
 }
+

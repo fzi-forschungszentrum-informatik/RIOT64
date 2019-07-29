@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -71,6 +72,24 @@ static gnrc_netif_t *test_netif = NULL;
 static void init_pkt_handler(void);
 static inline size_t ceil8(size_t size);
 
+/* Helpers to determine the correct alignment */
+
+// Mimics _unused of gnrc_pktbuf_static.c
+struct _dummy {
+    void* ptr;
+    unsigned int uint;
+};
+
+
+/* fits size to byte alignment */
+static size_t _align(size_t size)
+{
+    const size_t _ALIGNMENT_MASK = sizeof(struct _dummy) - 1;
+    return (size + _ALIGNMENT_MASK) & ~(_ALIGNMENT_MASK);
+}
+
+/* ---- */
+
 static void set_up(void)
 {
     gnrc_pktbuf_init();
@@ -81,7 +100,7 @@ static void fill_pktbuf(void)
     gnrc_pktsnip_t *pkt = gnrc_pktbuf_add(NULL, NULL,
                                           /* 24 = sizeof(gnrc_pktsnip_t) +
                                            * potential alignment */
-                                          GNRC_PKTBUF_SIZE - 24U,
+                                          GNRC_PKTBUF_SIZE - _align(sizeof(gnrc_pktsnip_t)),
                                           GNRC_NETTYPE_UNDEF);
     TEST_ASSERT_NOT_NULL(pkt);
     TEST_ASSERT(gnrc_pktbuf_is_sane());

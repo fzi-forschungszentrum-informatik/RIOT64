@@ -24,7 +24,7 @@
 #include "thread.h"
 #include "xtimer.h"
 
-#define TEST_TIME (200000U)
+#define TEST_TIME (20000U)
 
 static char t2_stack[THREAD_STACKSIZE_MAIN];
 

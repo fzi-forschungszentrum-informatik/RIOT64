@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -121,11 +122,14 @@ static void *pthread_reaper(void *arg)
 int pthread_create(pthread_t *newthread, const pthread_attr_t *attr, void *(*start_routine)(void *), void *arg)
 {
     pthread_thread_t *pt = calloc(1, sizeof(pthread_thread_t));
+    if (pt == NULL) {
+		return -1;
+	}
 
     kernel_pid_t pthread_pid = insert(pt);
     if (pthread_pid == KERNEL_PID_UNDEF) {
         free(pt);
-        return -1;
+        return -ENOMEM;
     }
     *newthread = pthread_pid;
 
@@ -136,6 +140,10 @@ int pthread_create(pthread_t *newthread, const pthread_attr_t *attr, void *(*sta
     bool autofree = attr == NULL || attr->ss_sp == NULL || attr->ss_size == 0;
     size_t stack_size = attr && attr->ss_size > 0 ? attr->ss_size : PTHREAD_STACKSIZE;
     void *stack = autofree ? malloc(stack_size) : attr->ss_sp;
+    if (stack == NULL) {
+		free(pt);
+        return -ENOMEM;
+	}
     pt->stack = autofree ? stack : NULL;
 
     if (autofree && pthread_reaper_pid != KERNEL_PID_UNDEF) {
@@ -174,6 +182,14 @@ int pthread_create(pthread_t *newthread, const pthread_attr_t *attr, void *(*sta
     return 0;
 }
 
+/* Prevent linking in pthread_tls.o if no TSS functions were used. */
+extern void __pthread_keys_exit(int self_id) __attribute__((weak));
+__attribute__((weak)) void __pthread_keys_exit(int self_id)  {
+	(void)self_id;
+	return;
+}
+
+
 void pthread_exit(void *retval)
 {
     pthread_t self_id = pthread_self();
@@ -191,11 +207,7 @@ void pthread_exit(void *retval)
             ct->__routine(ct->__arg);
         }
 
-        /* Prevent linking in pthread_tls.o if no TSS functions were used. */
-        extern void __pthread_keys_exit(int self_id) __attribute__((weak));
-        if (__pthread_keys_exit) {
-            __pthread_keys_exit(self_id);
-        }
+        __pthread_keys_exit(self_id);
 
         self->thread_pid = KERNEL_PID_UNDEF;
         DEBUG("pthread_exit(%p), self == %p\n", retval, (void *) self);

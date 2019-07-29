@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Leon George
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -124,8 +125,8 @@ void isr_edge(void)
 {
     for (unsigned pin = 0; pin < GPIO_ISR_CHAN_NUMOF; pin++) {
         /* doc claims EVFLAGS will only be set for pins that have edge detection enabled */
-        if (GPIO->EVFLAGS & (1 << pin)) {
-            GPIO->EVFLAGS |= (1 << pin);
+        if (GPIO->EVFLAGS & (1u << pin)) {
+            GPIO->EVFLAGS |= (1u << pin);
             gpio_chan[pin].cb(gpio_chan[pin].arg);
         }
     }

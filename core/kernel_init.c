@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2016 Kaspar Schleiser <kaspar@schleiser.de>
  *               2013 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -33,6 +34,10 @@
 #include "sched.h"
 #endif
 
+#ifdef USE_LAZY_FPU_CONTEXT
+#include "fpu_context.h"
+#endif
+
 #define ENABLE_DEBUG (0)
 #include "debug.h"
 
@@ -54,7 +59,7 @@ static void *main_trampoline(void *arg)
     ss->laststart = 0;
 #endif
 
-    LOG_INFO("main(): This is RIOT! (Version: " RIOT_VERSION ")\n");
+    LOG_INFO("main(): This is RIOT! (Version: " RIOT_VERSION  " - "__DATE__ " " __TIME__ ")\n");
 
     main();
     return NULL;
@@ -77,6 +82,10 @@ const char *idle_name = "idle";
 static char main_stack[THREAD_STACKSIZE_MAIN];
 static char idle_stack[THREAD_STACKSIZE_IDLE];
 
+#ifdef USE_LAZY_FPU_CONTEXT
+static struct fpu_context main_fpu_ctxt;
+#endif
+
 void kernel_init(void)
 {
     (void) irq_disable();
@@ -86,10 +95,17 @@ void kernel_init(void)
             THREAD_CREATE_WOUT_YIELD | THREAD_CREATE_STACKTEST,
             idle_thread, NULL, idle_name);
 
+    #ifdef USE_LAZY_FPU_CONTEXT
+    thread_create_with_fp(main_stack, sizeof(main_stack), &main_fpu_ctxt,
+            THREAD_PRIORITY_MAIN,
+            THREAD_CREATE_WOUT_YIELD | THREAD_CREATE_STACKTEST,
+            main_trampoline, NULL, main_name);
+    #else
     thread_create(main_stack, sizeof(main_stack),
             THREAD_PRIORITY_MAIN,
             THREAD_CREATE_WOUT_YIELD | THREAD_CREATE_STACKTEST,
             main_trampoline, NULL, main_name);
+    #endif
 
     cpu_switch_context_exit();
 }

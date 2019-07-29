@@ -1,7 +1,7 @@
-# define the module that is built
+# define the module that is build
 MODULE = cpu
 
-# add a list of subdirectories, that should also be built
-DIRS = periph nano vendor
+# add a list of subdirectories, that should also be build
+DIRS = vendor $(RIOTCPU)/riscv_common $(RIOTCPU)/sifive_common
 
 include $(RIOTBASE)/Makefile.base

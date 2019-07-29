@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Kaspar Schleiser <kaspar@schleiser.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser General
  * Public License v2.1. See the file LICENSE in the top level directory for
@@ -16,6 +17,7 @@
  *              TAP interfaces
  *
  * @author      Kaspar Schleiser <kaspar@schleiser.de>
+ * @author      Frederik Haxel <haxel@fzi.de>
  */
 #ifndef NETDEV_TAP_H
 #define NETDEV_TAP_H
@@ -61,6 +63,14 @@ typedef struct {
  * @param params    initialization parameters
  */
 void netdev_tap_setup(netdev_tap_t *dev, const netdev_tap_params_t *params);
+
+/**
+ * @brief Get the ipv4 address of the given dev
+ *
+ * @param dev     the netdev_tap device
+ * @param addr    the return value, 0.0.0.0 if invalid
+ */
+void getIPv4Address(netdev_tap_t *dev, uint8_t addr[4]);
 
 #ifdef __cplusplus
 }

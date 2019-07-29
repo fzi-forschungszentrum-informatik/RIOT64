@@ -23,12 +23,9 @@ USEMODULE += ps
 USEMODULE += od
 USEMODULE += netdev_default
 
-ifeq ($(BOARD),native)
+ifneq (,$(filter $(BOARD),native native64))
   USEMODULE += lwip_ethernet
-endif
-
-# Test only implemented for native
-ifneq ($(BOARD),native)
+else
   TESTS=
 endif
 

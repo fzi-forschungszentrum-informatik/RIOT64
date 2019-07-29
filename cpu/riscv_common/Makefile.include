@@ -1,0 +1,30 @@
+INCLUDES += -I$(RIOTCPU)/riscv_common/include
+INCLUDES += -I$(RIOTCPU)/riscv_common/include/vendor
+
+USEMODULE += newlib_syscalls_riscv
+
+USEMODULE += riscv_plic
+USEMODULE += periph
+USEMODULE += periph_common
+USEMODULE += periph_pm
+USEMODULE += periph_timer
+
+CFLAGS += -Wno-pedantic
+
+ifeq (,$(RVXLEN))
+    $(error CPU Makefile has to specify RISC-V XLEN (RVXLEN).)
+endif
+
+ifeq (,$(RVARCH))
+    $(error CPU Makefile has to specify RISC-V Architecture (RVARCH).)
+endif
+
+
+ifeq (,$(RVMED))
+    $(error CPU Makefile has to specify RISC-V code model (RVMED).)
+endif
+
+
+ifeq (,$(RVABI))
+    $(error CPU Makefile has to specify RISC-V ABI (RVABI).)
+endif

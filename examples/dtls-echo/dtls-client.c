@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015 Freie Universität Berlin
  * Copyright (C) 2018 Inria
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -18,6 +19,7 @@
  * @author      Olaf Bergmann <bergmann@tzi.org>
  * @author      Hauke Mehrtens <hauke@hauke-m.de>
  * @author      Oliver Hahm <oliver.hahm@inria.fr>
+ * @author      Frederik Haxel <haxel@fzi.de>
  * @}
  */
 
@@ -267,7 +269,7 @@ ssize_t try_send(struct dtls_context_t *ctx, session_t *dst, uint8 *buf, size_t 
         len -= res;
         return len;
     }
-    else if (res < 0) {
+    else {
         dtls_crit("Client: dtls_write returned error!\n");
         return -1;
     }
@@ -384,7 +386,7 @@ dtls_context_t *_init_dtls(sock_udp_t *sock, sock_udp_ep_t *local,
 static void client_send(char *addr_str, char *data)
 {
     static session_t dst;
-    dtls_context_t *dtls_context = NULL;
+    dtls_context_t *dtls_context;
 
     sock_udp_ep_t local = SOCK_IPV6_EP_ANY;
     sock_udp_ep_t remote = SOCK_IPV6_EP_ANY;

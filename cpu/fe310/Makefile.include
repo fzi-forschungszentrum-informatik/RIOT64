@@ -1,7 +1,6 @@
-
 USEMODULE += newlib_nano
-
-USEMODULE += newlib_syscalls_fe310
+USEMODULE += newlib_syscalls_riscv
+USEMODULE += sifive_common_periph
 USEMODULE += sifive_drivers_fe310
 
 USEMODULE += periph
@@ -10,4 +9,11 @@ USEMODULE += periph_pm
 
 CFLAGS += -Wno-pedantic
 
+export RVXLEN = RV32
+export RVARCH ?= rv32imac
+export RVMED ?= medlow
+export RVABI ?= ilp32
+
+include $(RIOTCPU)/riscv_common/Makefile.include
+include $(RIOTCPU)/sifive_common/Makefile.include
 include $(RIOTMAKE)/arch/riscv.inc.mk

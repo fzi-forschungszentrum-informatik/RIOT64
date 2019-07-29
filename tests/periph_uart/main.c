@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -21,6 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include "board.h"
 #include "shell.h"
@@ -78,7 +80,7 @@ static int parse_dev(char *arg)
 
 static void rx_cb(void *arg, uint8_t data)
 {
-    uart_t dev = (uart_t)arg;
+    uart_t dev = (uart_t)(uintptr_t)arg;
 
     ringbuffer_add_one(&(ctx[dev].rx_buf), data);
     if (data == '\n') {
@@ -145,7 +147,7 @@ static int cmd_init(int argc, char **argv)
     baud = strtol(argv[2], NULL, 0);
 
     /* initialize UART */
-    res = uart_init(UART_DEV(dev), baud, rx_cb, (void *)dev);
+    res = uart_init(UART_DEV(dev), baud, rx_cb, (void *)(uintptr_t)dev);
     if (res == UART_NOBAUD) {
         printf("Error: Given baudrate (%u) not possible\n", (unsigned int)baud);
         return 1;

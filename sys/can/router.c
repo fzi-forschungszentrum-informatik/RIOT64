@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 OTA keys S.A.
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser General
  * Public License v2.1. See the file LICENSE in the top level directory for more
@@ -314,7 +315,7 @@ int can_router_dispatch_rx_indic(can_pkt_t *pkt)
           (void *)pkt, pkt->entry.ifnum, pkt->frame.can_id);
 
     mutex_lock(&lock);
-    can_reg_entry_t *entry;
+    can_reg_entry_t *entry = NULL;
     filter_el_t *el;
     LL_FOREACH(table[pkt->entry.ifnum], entry) {
         el = container_of(entry, filter_el_t, entry);
@@ -383,9 +384,7 @@ int can_router_dispatch_tx_error(can_pkt_t *pkt)
 
 int can_router_free_frame(struct can_frame *frame)
 {
-    can_pkt_t *pkt = NULL;
-
-    pkt = container_of(frame, can_pkt_t, frame);
+    can_pkt_t *pkt = container_of(frame, can_pkt_t, frame);
 
     DEBUG("can_router_free_frame: pkt=%p\n", (void*) pkt);
 

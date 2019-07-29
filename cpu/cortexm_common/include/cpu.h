@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014-2015 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -62,7 +63,7 @@ extern "C" {
  * @brief   Pattern to write into the co-processor Access Control Register to
  *          allow full FPU access
  *
- * Used in the @ref cortexm_init_fpu inline function below.
+ * Used in the cortexm_init_fpu inline function below.
  */
 #define CORTEXM_SCB_CPACR_FPU_ACCESS_FULL         (0x00f00000)
 
@@ -74,7 +75,7 @@ void cpu_init(void);
 /**
  * @brief   Initialize Cortex-M specific core parts of the CPU
  *
- * @ref cortexm_init calls, in a default order, @ref cortexm_init_fpu,
+ * @ref cortexm_init calls, in a default order, cortexm_init_fpu,
  * @ref cortexm_init_isr_priorities, and @ref cortexm_init_misc.  Also
  * performs other default initialisations, including ones which you
  * may or may not want.

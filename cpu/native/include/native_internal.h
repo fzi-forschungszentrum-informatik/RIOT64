@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013, 2014 Ludwig Knüpfer
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -14,6 +15,8 @@
  * @ingroup    cpu_native
  * @{
  * @author  Ludwig Knüpfer <ludwig.knuepfer@fu-berlin.de>
+ * @author      Frederik Haxel <haxel@fzi.de>
+ * @author      Leon Hielscher <hielscher@fzi.de>
  */
 
 #ifndef NATIVE_INTERNAL_H
@@ -21,6 +24,7 @@
 
 #include <signal.h>
 #include <stdio.h>
+
 /* enable signal handler register access on different platforms
  * check here for more:
  * http://sourceforge.net/p/predef/wiki/OperatingSystems/
@@ -143,7 +147,7 @@ extern int (*real_clock_gettime)(clockid_t clk_id, struct timespec *tp);
  * data structures
  */
 extern volatile int native_interrupts_enabled;
-extern volatile unsigned int _native_saved_eip;
+extern volatile uintptr_t _native_saved_eip;
 extern int _sig_pipefd[2];
 extern volatile int _native_sigpend;
 extern volatile int _native_in_isr;

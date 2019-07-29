@@ -65,7 +65,7 @@ static vfs_mount_t _test_vfs_mount = {
 mtd_dev_t *fatfs_mtd_devs[FF_VOLUMES];
 
 #ifdef MODULE_MTD_NATIVE
-/* mtd device for native is provided in boards/native/board_init.c */
+/* mtd device for native is provided in boards/common/native-base/board_init.c */
 extern mtd_dev_t *mtd0;
 #elif MODULE_MTD_SDCARD
 #define SDCARD_SPI_NUM (sizeof(sdcard_spi_params) / sizeof(sdcard_spi_params[0]))

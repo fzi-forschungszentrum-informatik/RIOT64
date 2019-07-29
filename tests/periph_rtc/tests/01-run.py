@@ -16,32 +16,33 @@ DATE_PATTERN = r'\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}'
 
 
 def testfunc(child):
+    is_native = BOARD in ['native', 'native64']
     child.expect(r'This test will display \'Alarm\!\' every 2 seconds '
                  r'for (\d{1}) times')
     alarm_count = int(child.match.group(1))
     child.expect(r'  Setting clock to   ({})'.format(DATE_PATTERN))
     clock_set = child.match.group(1)
-    if BOARD == 'native':
+    if is_native:
         child.expect(r'.*rtc_set_time: not implemented')
     child.expect(r'Clock value is now   ({})'.format(DATE_PATTERN))
     clock_value = child.match.group(1)
-    if BOARD != 'native':
+    if not is_native:
         # Set clock is not implemented for native board so no need to compare
         # clock values
         assert clock_set == clock_value
 
     child.expect(r'  Setting alarm to   ({})'.format(DATE_PATTERN))
     alarm_set = child.match.group(1)
-    if BOARD == 'native':
+    if is_native:
         child.expect(r'.*rtc_set_alarm: not implemented')
     child.expect(r'   Alarm is set to   ({})'.format(DATE_PATTERN))
     alarm_value = child.match.group(1)
-    if BOARD != 'native':
+    if not is_native:
         # Set alarm is not implemented for native board so no need to compare
         # alarm values
         assert alarm_set == alarm_value
 
-    if BOARD != 'native':
+    if not is_native:
         for _ in range(alarm_count):
             child.expect_exact('Alarm!')
 

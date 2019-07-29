@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 HAW Hamburg
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -27,7 +28,7 @@
 extern "C" {
 #endif
 
-#ifdef BOARD_NATIVE
+#if defined(BOARD_NATIVE) || defined (BOARD_NATIVE64) 
 #include <stdio.h>
 
 /*

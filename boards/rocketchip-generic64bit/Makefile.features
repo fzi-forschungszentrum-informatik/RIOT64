@@ -1,0 +1,15 @@
+# Put defined MCU peripherals here (in alphabetical order)
+FEATURES_PROVIDED += periph_cpuid
+
+# No timer extra implemented atm.
+FEATURES_PROVIDED += periph_timer
+FEATURES_PROVIDED += periph_uart
+
+# The board MPU family (used for grouping by the CI system)
+FEATURES_MCU_GROUP = risc_v
+
+export QEMU_FLAGS = -machine rocketchip
+export QEMU_FLAGS += -net nic,model=fzi.gigabit-ethernet-controller -net tap,ifname=tap0,script=no,downscript=no
+export QEMU_FLAGS += -icount shift=auto
+
+-include $(RIOTCPU)/rocketchip64/Makefile.features

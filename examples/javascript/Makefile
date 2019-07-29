@@ -28,7 +28,7 @@ BOARD_BLACKLIST := arduino-duemilanove arduino-mega2560 arduino-nano \
 # development process:
 DEVELHELP ?= 1
 
-ifneq ($(BOARD),native)
+ifeq (,$(filter $(BOARD),native native64))
 # Set stack size to something (conservatively) enormous
 CFLAGS += -DTHREAD_STACKSIZE_MAIN=9092
 endif

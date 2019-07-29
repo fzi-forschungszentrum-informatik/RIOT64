@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015 Loci Controls Inc.
  *               2017 HAW Hamburg
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -159,7 +160,7 @@ static void _i2c_master_slave_addr(uint16_t addr, bool receive)
 {
     DEBUG("%s (%" PRIx16 ", %d)\n", __FUNCTION__, addr, (int)receive);
     assert(!(addr & 0x80));
-    I2CM_SA = (addr << 1) | receive;
+    I2CM_SA = (addr << 1) | (receive & 0x1);
 }
 
 static void _i2c_master_data_put(uint8_t data)

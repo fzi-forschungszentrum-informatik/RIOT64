@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -124,17 +125,17 @@ static int _netif_stats(kernel_pid_t iface, unsigned module, bool reset)
     }
     else {
         printf("          Statistics for %s\n"
-               "            RX packets %u  bytes %u\n"
-               "            TX packets %u (Multicast: %u)  bytes %u\n"
-               "            TX succeeded %u errors %u\n",
+               "            RX packets %"PRIu32"  bytes %"PRIu32"\n"
+               "            TX packets %"PRIu32" (Multicast: %"PRIu32")  bytes %"PRIu32"\n"
+               "            TX succeeded %"PRIu32" errors %"PRIu32"\n",
                _netstats_module_to_str(module),
-               (unsigned) stats->rx_count,
-               (unsigned) stats->rx_bytes,
-               (unsigned) (stats->tx_unicast_count + stats->tx_mcast_count),
-               (unsigned) stats->tx_mcast_count,
-               (unsigned) stats->tx_bytes,
-               (unsigned) stats->tx_success,
-               (unsigned) stats->tx_failed);
+               stats->rx_count,
+               stats->rx_bytes,
+               (stats->tx_unicast_count + stats->tx_mcast_count),
+               stats->tx_mcast_count,
+               stats->tx_bytes,
+               stats->tx_success,
+               stats->tx_failed);
         res = 0;
     }
     return res;

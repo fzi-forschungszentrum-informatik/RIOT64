@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Kaspar Schleiser <kaspar@schleiser.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License v2. See the file LICENSE for more details.
@@ -261,7 +262,7 @@ static void _write_escaped(int fd, char* buf, ssize_t n)
     /* Our workaround is to prepare the data to send in a local buffer and then
      * call write() on the buffer instead of one char at a time */
     uint8_t out[SERIAL_BUFFER_SIZE];
-    size_t escaped = 0;
+//    size_t escaped = 0;
     size_t buffered = 0;
 
     while(n--) {
@@ -269,7 +270,7 @@ static void _write_escaped(int fd, char* buf, ssize_t n)
         if (c == LINE_FRAME_DELIMITER || c == LINE_ESC_CHAR) {
             out[buffered++] = LINE_ESC_CHAR;
             c ^= 0x20;
-            ++escaped;
+//            ++escaped;
             if (buffered >= SERIAL_BUFFER_SIZE) {
                 checked_write(fd, out, buffered);
                 buffered = 0;

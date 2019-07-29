@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser General
  * Public License v2.1. See the file LICENSE in the top level directory for more
@@ -140,7 +141,7 @@ static int init_base(uart_t uart, uint32_t baudrate)
 
 void uart_write(uart_t uart, const uint8_t *data, size_t len)
 {
-    LPC_UART_TypeDef *dev;
+    LPC_UART_TypeDef *dev = NULL;
 
     switch (uart) {
 #if UART_0_EN
@@ -156,6 +157,9 @@ void uart_write(uart_t uart, const uint8_t *data, size_t len)
         default:
             return;
     }
+
+    if (dev == NULL)
+    	return;
 
     for (size_t i = 0; i < len; i++) {
         while (!(dev->LSR & (1 << 5)));       /* wait for THRE bit to be set */

@@ -23,7 +23,7 @@ BOARD_WHITELIST := airfy-beacon arduino-due arduino-duemilanove arduino-mega2560
                    sensebox_samd21 sltb001a sodaq-autonomo \
                    sodaq-explorer spark-core stm32f0discovery stm32f3discovery \
                    stm32f4discovery telosb udoo waspmote-pro wsn430-v1_3b \
-                   wsn430-v1_4 yunjia-nrf51822 z1 native
+                   wsn430-v1_4 yunjia-nrf51822 z1 native native64
 
 USEMODULE += shell
 USEMODULE += fatfs_diskio_mtd
@@ -32,7 +32,7 @@ USEPKG    += fatfs
 
 FATFS_IMAGE_FILE_SIZE_MIB ?= 128
 
-ifeq ($(BOARD),native)
+ifneq (,$(filter $(BOARD),native native64))
 #overwrite default mtd_native-config to use fat image as flash device
 CFLAGS += -DMTD_NATIVE_FILENAME=\"./bin/riot_fatfs_disk.img\"
 CFLAGS += -DMTD_PAGE_SIZE=512

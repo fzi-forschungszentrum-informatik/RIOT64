@@ -2,6 +2,7 @@
  * Copyright (C) 2015 Kaspar Schleiser <kaspar@schleiser.de>
  *               2016 Eistec AB
  *               2018 Josua Arndt
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -17,6 +18,7 @@
  * @author Kaspar Schleiser <kaspar@schleiser.de>
  * @author Joakim Nohlgård <joakim.nohlgard@eistec.se>
  * @author Josua Arndt <jarndt@ias.rwth-aachen.de>
+ * @author      Leon Hielscher <hielscher@fzi.de>
  * @}
  */
 
@@ -35,42 +37,71 @@
 
 static volatile int _in_handler = 0;
 
+#ifndef TIMER_64BIT_HW
 static volatile uint32_t _long_cnt = 0;
+#endif
+
 #if XTIMER_MASK
 volatile uint32_t _xtimer_high_cnt = 0;
 #endif
 
+#ifdef TIMER_64BIT_HW
+static inline void xtimer_spin_until(uint64_t target);
+#else
 static inline void xtimer_spin_until(uint32_t value);
-
+#endif
 static xtimer_t *timer_list_head = NULL;
+
+#ifndef TIMER_64BIT_HW
 static xtimer_t *overflow_list_head = NULL;
 static xtimer_t *long_list_head = NULL;
+#endif
 
 static void _add_timer_to_list(xtimer_t **list_head, xtimer_t *timer);
+
+#ifndef TIMER_64BIT_HW
 static void _add_timer_to_long_list(xtimer_t **list_head, xtimer_t *timer);
+#endif
+
 static void _shoot(xtimer_t *timer);
 static void _remove(xtimer_t *timer);
+
+#ifdef TIMER_64BIT_HW
+static inline void _lltimer_set(uint64_t target);
+static uint64_t _time_left(uint64_t target, uint64_t reference);
+#else
 static inline void _lltimer_set(uint32_t target);
 static uint32_t _time_left(uint32_t target, uint32_t reference);
+#endif
+
+
 
 static void _timer_callback(void);
 static void _periph_timer_callback(void *arg, int chan);
 
+#ifndef TIMER_64BIT_HW
 static inline int _this_high_period(uint32_t target);
+#endif
 
 static inline int _is_set(xtimer_t *timer)
 {
     return (timer->target || timer->long_target);
 }
 
-static inline void xtimer_spin_until(uint32_t target)
-{
+#ifdef TIMER_64BIT_HW
+static inline void xtimer_spin_until(uint64_t target) {
+    while (_xtimer_lltimer_now64() > target);
+    while (_xtimer_lltimer_now64() < target);
+}
+#else
+static inline void xtimer_spin_until(uint32_t target) {
 #if XTIMER_MASK
     target = _xtimer_lltimer_mask(target);
 #endif
     while (_xtimer_lltimer_now() > target) {}
     while (_xtimer_lltimer_now() < target) {}
 }
+#endif
 
 void xtimer_init(void)
 {
@@ -78,9 +109,15 @@ void xtimer_init(void)
     timer_init(XTIMER_DEV, XTIMER_HZ, _periph_timer_callback, NULL);
 
     /* register initial overflow tick */
+#ifdef TIMER_64BIT_HW
+    _lltimer_set(0xFFFFFFFFFFFFFFFFUL);
+#else
     _lltimer_set(0xFFFFFFFF);
+#endif
 }
 
+
+#ifndef TIMER_64BIT_HW
 static void _xtimer_now_internal(uint32_t *short_term, uint32_t *long_term)
 {
     uint32_t before, after, long_value;
@@ -96,19 +133,44 @@ static void _xtimer_now_internal(uint32_t *short_term, uint32_t *long_term)
     *short_term = after;
     *long_term = long_value;
 }
+#endif
 
 uint64_t _xtimer_now64(void)
 {
+#ifdef TIMER_64BIT_HW
+	return _xtimer_lltimer_now64();
+#else
     uint32_t short_term, long_term;
 
     _xtimer_now_internal(&short_term, &long_term);
 
     return ((uint64_t)long_term << 32) + short_term;
+#endif
 }
 
 void _xtimer_set64(xtimer_t *timer, uint32_t offset, uint32_t long_offset)
 {
     DEBUG(" _xtimer_set64() offset=%" PRIu32 " long_offset=%" PRIu32 "\n", offset, long_offset);
+
+#ifdef TIMER_64BIT_HW
+    if (!timer->callback) {
+        DEBUG("timer_set(): timer has no callback.\n");
+        return;
+    }
+
+    const uint64_t offset64 = ((uint64_t)long_offset << 32) + offset;
+    xtimer_remove(timer);
+
+    if (offset64 < XTIMER_BACKOFF) {
+    	_xtimer_spin64(offset64);
+        _shoot(timer);
+    }
+    else {
+        uint64_t target = _xtimer_now64() + offset64;
+        _xtimer_set_absolute64(timer, target);
+    }
+
+#else
     if (!long_offset) {
         /* timer fits into the short timer */
         _xtimer_set(timer, (uint32_t)offset);
@@ -131,6 +193,7 @@ void _xtimer_set64(xtimer_t *timer, uint32_t offset, uint32_t long_offset)
         DEBUG("xtimer_set64(): added longterm timer (long_target=%" PRIu32 " target=%" PRIu32 ")\n",
               timer->long_target, timer->target);
     }
+#endif
 }
 
 void _xtimer_set(xtimer_t *timer, uint32_t offset)
@@ -149,8 +212,13 @@ void _xtimer_set(xtimer_t *timer, uint32_t offset)
         _shoot(timer);
     }
     else {
+#ifdef TIMER_64BIT_HW
+    	uint64_t target = _xtimer_now64() + offset;
+    	_xtimer_set_absolute64(timer, target);
+#else
         uint32_t target = _xtimer_now() + offset;
         _xtimer_set_absolute(timer, target);
+#endif
     }
 }
 
@@ -166,6 +234,17 @@ static void _shoot(xtimer_t *timer)
     timer->callback(timer->arg);
 }
 
+
+#ifdef TIMER_64BIT_HW
+static inline void _lltimer_set(uint64_t target)
+{
+    if (_in_handler) {
+        return;
+    }
+    DEBUG("_lltimer_set(): setting %" PRIu64 "\n", _xtimer_lltimer_mask(target));
+    timer_set_absolute(XTIMER_DEV, XTIMER_CHAN, _xtimer_lltimer_mask(target));
+}
+#else
 static inline void _lltimer_set(uint32_t target)
 {
     if (_in_handler) {
@@ -174,6 +253,73 @@ static inline void _lltimer_set(uint32_t target)
     DEBUG("_lltimer_set(): setting %" PRIu32 "\n", _xtimer_lltimer_mask(target));
     timer_set_absolute(XTIMER_DEV, XTIMER_CHAN, _xtimer_lltimer_mask(target));
 }
+#endif
+
+
+#ifdef TIMER_64BIT_HW
+
+int _xtimer_set_absolute64(xtimer_t *timer, uint64_t target)
+{
+    uint64_t now = _xtimer_now64();
+    int res = 0;
+
+    timer->next = NULL;
+    
+    
+    /* Ensure that offset is bigger than 'XTIMER_BACKOFF',
+     * 'target - now' will allways be the offset no matter if target < or > now.
+     *
+     * This expects that target was not set too close to now and overrun now, so
+     * from setting target up until the call of '_xtimer_now()' above now has not
+     * become equal or bigger than target.
+     * This is crucial when using low CPU frequencies so reaching the '_xtimer_now()'
+     * call needs multiple xtimer ticks.
+     *
+     * '_xtimer_set()' and `_xtimer_periodic_wakeup()` ensure this by already
+     * backing off for small values. */
+    uint64_t offset = (target - now);
+
+    DEBUG("timer_set_absolute(): now=%" PRIu64 " target=%" PRIu64 " offset=%" PRIu64 "\n",
+          now, target, offset);
+
+    if (offset <= XTIMER_BACKOFF) {
+        /* backoff */
+        xtimer_spin_until(target);
+        _shoot(timer);
+        return 0;
+    }
+
+    unsigned state = irq_disable();
+    if (_is_set(timer)) {
+        _remove(timer);
+    }
+	
+    timer->target64 = target;
+
+	DEBUG("timer_set_absolute64(): timer will expire in this timer period.\n");
+	// With 64-Bit timers we don't really need to consider multiple periods.
+	_add_timer_to_list(&timer_list_head, timer);
+
+	if (timer_list_head == timer) {
+	    now = _xtimer_now64();
+	    if (target < now) {
+	    	DEBUG("timer_set_absolute64(): Oops. Target is in the past.\n");
+	    	timer->target64 = 0;
+	        _shoot(timer);
+	        irq_restore(state);
+	        return 0;
+	    }
+		DEBUG("timer_set_absolute64(): timer is new list head. updating lltimer.\n");
+		_lltimer_set(target);
+	}
+
+    irq_restore(state);
+
+    return res;
+}
+
+
+#else
 
 int _xtimer_set_absolute(xtimer_t *timer, uint32_t target)
 {
@@ -252,6 +398,23 @@ int _xtimer_set_absolute(xtimer_t *timer, uint32_t target)
     return res;
 }
 
+#endif
+
+
+#ifdef TIMER_64BIT_HW
+
+static void _add_timer_to_list(xtimer_t **list_head, xtimer_t *timer)
+{
+    while (*list_head && (*list_head)->target64 <= timer->target64) {
+        list_head = &((*list_head)->next);
+    }
+
+    timer->next = *list_head;
+    *list_head = timer;
+}
+
+#else
+
 static void _add_timer_to_list(xtimer_t **list_head, xtimer_t *timer)
 {
     while (*list_head && (*list_head)->target <= timer->target) {
@@ -274,6 +437,8 @@ static void _add_timer_to_long_list(xtimer_t **list_head, xtimer_t *timer)
     *list_head = timer;
 }
 
+#endif
+
 static int _remove_timer_from_list(xtimer_t **list_head, xtimer_t *timer)
 {
     while (*list_head) {
@@ -286,6 +451,32 @@ static int _remove_timer_from_list(xtimer_t **list_head, xtimer_t *timer)
 
     return 0;
 }
+
+
+
+#ifdef TIMER_64BIT_HW
+
+static void _remove(xtimer_t *timer)
+{
+    if (timer_list_head == timer) {
+        uint64_t next;
+        timer_list_head = timer->next;
+        if (timer_list_head) {
+            /* schedule callback on next timer target time */
+            next = timer_list_head->target64 - XTIMER_OVERHEAD;
+        }
+        else {
+            next = _xtimer_lltimer_mask(0xFFFFFFFFFFFFFFFFL);
+        }
+        _lltimer_set(next);
+    }
+    else {
+      _remove_timer_from_list(&timer_list_head, timer);
+    }
+}
+
+
+#else
 
 static void _remove(xtimer_t *timer)
 {
@@ -310,6 +501,8 @@ static void _remove(xtimer_t *timer)
     }
 }
 
+#endif
+
 void xtimer_remove(xtimer_t *timer)
 {
     int state = irq_disable();
@@ -319,6 +512,28 @@ void xtimer_remove(xtimer_t *timer)
     }
     irq_restore(state);
 }
+
+
+#ifdef TIMER_64BIT_HW
+
+static uint64_t _time_left(uint64_t target, uint64_t reference)
+{
+    uint64_t now = _xtimer_lltimer_now();
+
+    if (now < reference) {
+        return 0;
+    }
+
+    if (target > now) {
+        return target - now;
+    }
+    else {
+        return 0;
+    }
+}
+
+
+#else
 
 static uint32_t _time_left(uint32_t target, uint32_t reference)
 {
@@ -336,8 +551,11 @@ static uint32_t _time_left(uint32_t target, uint32_t reference)
     }
 }
 
-static inline int _this_high_period(uint32_t target)
-{
+#endif
+
+#ifndef TIMER_64BIT_HW
+
+static inline int _this_high_period(uint32_t target) {
 #if XTIMER_MASK
     return (target & XTIMER_MASK) == _xtimer_high_cnt;
 #else
@@ -361,6 +579,7 @@ static inline xtimer_t *_compare(xtimer_t *a, xtimer_t *b)
         return (a ? a : b);
     }
 }
+
 
 /**
  * @brief merge two timer lists, return head of new list
@@ -388,6 +607,8 @@ static xtimer_t *_merge_lists(xtimer_t *head_a, xtimer_t *head_b)
 
     return result_head;
 }
+
+
 
 /**
  * @brief parse long timers list and copy those that will expire in the current
@@ -436,6 +657,7 @@ static void _select_long_timers(void)
     }
 }
 
+
 /**
  * @brief handle low-level timer overflow, advance to next short timer period
  */
@@ -459,10 +681,77 @@ static void _next_period(void)
 
     _select_long_timers();
 }
+#endif
 
 /**
  * @brief main xtimer callback function
  */
+
+#ifdef TIMER_64BIT_HW
+
+static void _timer_callback(void)
+{
+    uint64_t next_target;
+    uint64_t reference;
+
+    _in_handler = 1;
+
+    DEBUG("_timer_callback() now=%" PRIu64 " (%" PRIu64 ")pleft=%" PRIu64 "\n",
+          xtimer_now64().ticks64, _xtimer_lltimer_mask(xtimer_now64().ticks64),
+          0xffffffffffffffffl - xtimer_now64().ticks64);
+
+    if (!timer_list_head) {
+    	core_panic(PANIC_ASSERT_FAIL, "Unexpected timer callback");
+    }
+    else {
+        /* we ended up in _timer_callback and there is
+         * a timer waiting.
+         */
+        /* set our period reference to the current time. */
+        reference = _xtimer_lltimer_now64();
+    }
+
+    /* check if next timers are close to expiring */
+    while (timer_list_head && (_time_left(timer_list_head->target, reference) < XTIMER_ISR_BACKOFF)) {
+        /* make sure we don't fire too early */
+        while (_time_left(timer_list_head->target, reference)) {}
+
+        /* pick first timer in list */
+        xtimer_t *timer = timer_list_head;
+
+        /* advance list */
+        timer_list_head = timer->next;
+
+        /* make sure timer is recognized as being already fired */
+        timer->target = 0;
+        timer->long_target = 0;
+
+        /* fire timer */
+        _shoot(timer);
+    }
+
+    if (reference > _xtimer_lltimer_now64()) {
+    	core_panic(PANIC_ASSERT_FAIL, "64 Bit timer overflow");
+    }
+
+    if (timer_list_head) {
+        /* schedule callback on next timer target time */
+        next_target = timer_list_head->target - XTIMER_OVERHEAD;
+    }
+    else {
+        /* there's no timer planned for this timer period */
+        next_target = _xtimer_lltimer_mask(0xFFFFFFFFFFFFFFFFL);
+    }
+
+    _in_handler = 0;
+
+    /* set low level timer */
+    _lltimer_set(next_target);
+}
+
+
+#else
+
 static void _timer_callback(void)
 {
     uint32_t next_target;
@@ -571,3 +860,5 @@ overflow:
     /* set low level timer */
     _lltimer_set(next_target);
 }
+
+#endif

@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2013 INRIA
  *               2018 Otto-von-Guericke-Universität Magdeburg
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -225,14 +226,14 @@ int _sht_config_handler(int argc, char **argv)
                     missing_argument(i - 1, argv);
                     return -1;
                 }
-                temp_off = (int16_t)atoi(argv[i]);
+                temp_off = atoi(argv[i]);
                 break;
             case 'h':
                 if (++i >= argc) {
                     missing_argument(i - 1, argv);
                     return -1;
                 }
-                hum_off = (int16_t)atoi(argv[i]);
+                hum_off = atoi(argv[i]);
                 break;
             case 'r':
                 if (++i >= argc) {

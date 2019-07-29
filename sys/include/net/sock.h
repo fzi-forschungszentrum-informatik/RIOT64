@@ -3,6 +3,7 @@
  *                    Freie Universität Berlin
  *                    HAW Hamburg
  *                    Kaspar Schleiser <kaspar@schleiser.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -230,6 +231,23 @@ struct _sock_tl_ep {
 #ifdef __cplusplus
 }
 #endif
+
+/**
+ * XXX: Copied from LWIP NETCONN_EVT_XX => Should be more portable
+ */
+enum sock_evt {
+   SOCK_EVT_RCVPLUS,
+   SOCK_EVT_RCVMINUS,
+   SOCK_EVT_SENDPLUS,
+   SOCK_EVT_SENDMINUS,
+   SOCK_EVT_ERROR
+};
+
+struct netconn;
+/**
+ * Callback function prototype
+ */
+typedef void (* callback_t)(struct netconn *, enum sock_evt evt, uint16_t len);
 
 #endif /* NET_SOCK_H */
 /** @} */

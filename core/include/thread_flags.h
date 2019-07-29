@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Kaspar Schleiser <kaspar@schleiser.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -60,6 +61,7 @@
 
 #include "kernel_types.h"
 #include "sched.h"  /* for thread_t typedef */
+#include "limits.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -109,6 +111,10 @@ extern "C" {
  * @brief Type definition of thread_flags_t
  */
 typedef uint16_t thread_flags_t;
+
+#if UINTPTR_MAX < UINT16_MAX
+#error "Thread flags cannot fit into void pointer."
+#endif
 
 /**
  * @brief Set thread flags, possibly waking it up

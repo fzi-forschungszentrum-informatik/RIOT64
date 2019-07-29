@@ -2,6 +2,7 @@
  * Auto initialization for used modules
  *
  * Copyright (C) 2013  INRIA.
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -284,6 +285,11 @@ void auto_init(void)
 #ifdef MODULE_NRF802154
     extern void auto_init_nrf802154(void);
     auto_init_nrf802154();
+#endif
+
+#ifdef MODULE_ROCKETIF
+    extern void auto_init_rocketif(void);
+    auto_init_rocketif();
 #endif
 
 #endif /* MODULE_AUTO_INIT_GNRC_NETIF */

@@ -1,6 +1,7 @@
 /**
  * Copyright (C) 2013 Ludwig Knüpfer <ludwig.knuepfer@fu-berlin.de>
  *               2015 Kaspar Schleiser <kaspar@schleiser.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -22,6 +23,7 @@
  *
  * @author      Ludwig Knüpfer <ludwig.knuepfer@fu-berlin.de>
  * @author      Kaspar Schleiser <kaspar@schleiser.de>
+ * @author      Leon Hielscher <hielscher@fzi.de>
  *
  * @}
  */
@@ -53,7 +55,7 @@
 
 #define NATIVE_TIMER_SPEED 1000000
 
-static unsigned long time_null;
+static timer_val_t time_null;
 
 static timer_cb_t _callback;
 static void *_cb_arg;
@@ -105,7 +107,7 @@ int timer_init(tim_t dev, unsigned long freq, timer_cb_t cb, void *arg)
     return 0;
 }
 
-static void do_timer_set(unsigned int offset)
+static void do_timer_set(timer_val_t offset)
 {
     DEBUG("%s\n", __func__);
 
@@ -126,7 +128,7 @@ static void do_timer_set(unsigned int offset)
     _native_syscall_leave();
 }
 
-int timer_set(tim_t dev, int channel, unsigned int offset)
+int timer_set(tim_t dev, int channel, timer_val_t offset)
 {
     (void)dev;
     DEBUG("%s\n", __func__);
@@ -144,9 +146,9 @@ int timer_set(tim_t dev, int channel, unsigned int offset)
     return 1;
 }
 
-int timer_set_absolute(tim_t dev, int channel, unsigned int value)
+int timer_set_absolute(tim_t dev, int channel, timer_val_t value)
 {
-    uint32_t now = timer_read(dev);
+	timer_val_t now = timer_read(dev);
     return timer_set(dev, channel, value - now);
 }
 
@@ -172,7 +174,7 @@ void timer_stop(tim_t dev)
     DEBUG("%s\n", __func__);
 }
 
-unsigned int timer_read(tim_t dev)
+timer_val_t timer_read(tim_t dev)
 {
     if (dev >= TIMER_NUMOF) {
         return 0;

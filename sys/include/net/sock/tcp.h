@@ -3,6 +3,7 @@
  *                    Freie Universität Berlin
  *                    HAW Hamburg
  *                    Kaspar Schleiser <kaspar@schleiser.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -359,6 +360,22 @@ typedef struct sock_tcp_queue sock_tcp_queue_t;
  */
 int sock_tcp_connect(sock_tcp_t *sock, const sock_tcp_ep_t *remote,
                      uint16_t local_port, uint16_t flags);
+/**
+ * @brief   same as @ref sock_tcp_connect(), but with callback.
+ *
+ * @pre `(sock != NULL)`
+ *
+ * @param[out] sock     	See @ref sock_tcp_connect().
+ * @param[in] remote    	See @ref sock_tcp_connect().
+ * @param[in] local_port    See @ref sock_tcp_connect().
+ * @param[in] flags    		See @ref sock_tcp_connect().
+ * @param[in] callback     	Callback function, maybe 0.
+ *
+ * @return  0 on success.
+ * @return  See @ref sock_tcp_connect().
+ */
+int sock_tcp_connect_callback(sock_tcp_t *sock, const sock_tcp_ep_t *remote,
+                     uint16_t local_port, uint16_t flags, callback_t callback);
 
 /**
  * @brief   Listen for an incoming connection request on @p local end point
@@ -386,6 +403,33 @@ int sock_tcp_connect(sock_tcp_t *sock, const sock_tcp_ep_t *remote,
 int sock_tcp_listen(sock_tcp_queue_t *queue, const sock_tcp_ep_t *local,
                     sock_tcp_t *queue_array, unsigned queue_len,
                     uint16_t flags);
+/**
+ * @brief   Listen for an incoming connection request on @p local end point
+ *
+ * @pre `queue != NULL`
+ * @pre `(local != NULL) && (local->port != 0)`
+ * @pre `(queue_array != NULL) && (queue_len != 0)`
+ *
+ * @param[in] queue         The resulting listening queue.
+ * @param[in] local         Local end point to listen on.
+ * @param[in] queue_array   Array of sock objects.
+ * @param[in] queue_len     Length of @p queue_array.
+ * @param[in] flags         Flags for the listening queue. See also
+ *                          @ref net_sock_flags. May be 0.
+ * @param[in] callback     	Callback function, maybe 0.
+ *
+ * @return  0 on success.
+ * @return  -EADDRINUSE, if `(flags & SOCK_FLAGS_REUSE_EP) == 0` and
+ *          @p local is already used elsewhere
+ * @return  -EAFNOSUPPORT, if sock_tcp_ep_t::family of @p local is not
+ *          supported.
+ * @return  -EINVAL, if sock_tcp_ep_t::netif of @p local is not a valid
+ *          interface.
+ * @return  -ENOMEM, if no memory was available to listen on @p queue.
+ */
+int sock_tcp_listen_callback(sock_tcp_queue_t *queue, const sock_tcp_ep_t *local,
+                    sock_tcp_t *queue_array, unsigned queue_len,
+                    uint16_t flags, callback_t callback);
 
 /**
  * @brief   Disconnects a TCP connection

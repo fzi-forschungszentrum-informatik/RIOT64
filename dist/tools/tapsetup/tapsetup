@@ -1,6 +1,7 @@
 #!/bin/sh
 
 PROGRAM=$(basename $0)
+IPV4_ADDRESS=8
 COUNT="2"
 COMMAND=""
 BRNAME="tapbr0"
@@ -41,7 +42,9 @@ create_bridge() {
             sudo ip link add name ${BRNAME} type bridge || exit 1
             if [ -n "${DEACTIVATE_IPV6}" ]; then
                 sudo -s sh -c "echo 1  > /proc/sys/net/ipv6/conf/${BRNAME}/disable_ipv6" || exit 1
-            fi ;;
+            fi 
+            # sudo ip addr add dev  ${BRNAME} 192.168.0.1/24 || exit 1 ;;
+	    ;;
         OSX)
             sudo ifconfig ${BRNAME} create || exit 1 ;;
         *)
@@ -106,7 +109,9 @@ create_tap() {
                 sudo -s sh -c "echo 1  > /proc/sys/net/ipv6/conf/${TAPNAME}${N}/disable_ipv6" || exit 1
             fi
             sudo ip link set dev ${TAPNAME}${N} master ${BRNAME} || exit 1
-            sudo ip link set ${TAPNAME}${N} up || exit 1 ;;
+            sudo ip link set ${TAPNAME}${N} up 
+            # sudo ip addr add dev  ${TAPNAME}${N} 192.168.0.${IPV4_ADDRESS}/29 || exit 1
+	    IPV4_ADDRESS=$(($IPV4_ADDRESS + 8)) ;;
         OSX)
             sudo chown ${USER} /dev/tap${N} || exit 1
             echo "start RIOT instance for tap${N} now and hit enter"

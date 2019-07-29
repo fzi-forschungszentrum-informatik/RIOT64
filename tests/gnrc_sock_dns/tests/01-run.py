@@ -15,7 +15,7 @@ import subprocess
 import threading
 import time
 
-from scapy.all import DNS, DNSQR, DNSRR, Raw, raw
+from scapy.all import DNS, DNSQR, DNSRR, Raw
 from testrunner import run
 
 
@@ -59,7 +59,7 @@ class Server(threading.Thread):
             if self.stopped:
                 return
             p, remote = self.socket.recvfrom(1500)
-            p = DNS(raw(p))
+            p = DNS(Raw(p))
             # check received packet for correctness
             assert(p is not None)
             assert(p[DNS].qr == 0)
@@ -75,7 +75,7 @@ class Server(threading.Thread):
             assert(any(p[DNS].qd[i].qtype == DNS_RR_TYPE_AAAA
                        for i in range(qdcount)))    # one is AAAA
             if self.reply is not None:
-                self.socket.sendto(raw(self.reply), remote)
+                self.socket.sendto(Raw(self.reply), remote)
                 self.reply = None
 
     def listen(self, reply=None):

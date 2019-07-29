@@ -1,3 +1,8 @@
 export CPU_MODEL = nrf52840xxaa
 
+all-debug: export CFLAGS += -g
+
+all: # do not override first target
+all-debug: all
+
 include $(RIOTBOARD)/common/nrf52xxxdk/Makefile.include

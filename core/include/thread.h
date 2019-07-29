@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -138,6 +139,11 @@
  */
 typedef void *(*thread_task_func_t)(void *arg);
 
+#if defined(USE_LAZY_FPU_CONTEXT)
+// Forward declaration for FPU context 
+struct fpu_context;
+#endif
+
 /**
  * @brief @c thread_t holds thread's context data.
  */
@@ -176,6 +182,12 @@ struct _thread {
     const char *name;               /**< thread's name                  */
     int stack_size;                 /**< thread's stack size            */
 #endif
+
+//TODO: Move lazy FPU contect to thread arch
+#if defined(USE_LAZY_FPU_CONTEXT)
+    struct fpu_context *fpucontext;
+#endif
+
 #ifdef HAVE_THREAD_ARCH_T
     thread_arch_t arch;             /**< architecture dependent part    */
 #endif
@@ -346,6 +358,22 @@ kernel_pid_t thread_create(char *stack,
                   thread_task_func_t task_func,
                   void *arg,
                   const char *name);
+
+
+#if defined(USE_LAZY_FPU_CONTEXT)
+
+kernel_pid_t thread_create_with_fp(char *stack,
+                  int stacksize,
+                  struct fpu_context *fpucontext,
+                  char priority,
+                  int flags,
+                  thread_task_func_t task_func,
+                  void *arg,
+                  const char *name);
+
+void thread_fpu_context_init(struct fpu_context* fc, kernel_pid_t pid);
+
+#endif
 
 /**
  * @brief       Retreive a thread control block by PID.

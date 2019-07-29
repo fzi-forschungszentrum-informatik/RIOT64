@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2016 Luminița Lăzărescu <cluminita.lazarescu@gmail.com>
  * Copyright (C) 2017 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -46,7 +47,7 @@ extern "C" {
 int sntp_sync(sock_udp_ep_t *server, uint32_t timeout);
 
 /**
- * @brief Get real time offset from system time as returned by @ref xtimer_now64()
+ * @brief Get real time offset from system time as returned by xtimer_now64()
  *
  * @return Real time offset in microseconds relative to 1900-01-01 00:00 UTC
  */

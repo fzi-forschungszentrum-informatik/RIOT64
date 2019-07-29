@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Martine Lenders <mlenders@inf.fu-berlin.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -137,13 +138,38 @@ extern "C" {
 
 #define LWIP_SOCKET             (0)
 
+#define TCP_MSS                         1536
+
 #define LWIP_DONT_PROVIDE_BYTEORDER_FUNCTIONS
 #define MEMP_MEM_MALLOC         (1)
 #define NETIF_MAX_HWADDR_LEN    (GNRC_NETIF_HDR_L2ADDR_MAX_LEN)
 
 #define TCPIP_THREAD_STACKSIZE  (THREAD_STACKSIZE_DEFAULT)
 
-#define MEM_ALIGNMENT           (4)
+#ifndef SO_REUSE
+#define SO_REUSE		 		(1)
+#endif
+
+#ifndef LWIP_TCP_KEEPALIVE
+#define LWIP_TCP_KEEPALIVE		(1)
+#endif
+
+#ifndef LWIP_SO_LINGER
+#define LWIP_SO_LINGER			(1)
+#endif
+
+#ifndef LWIP_SO_SNDTIMEO
+#define LWIP_SO_SNDTIMEO		(1)
+#endif
+
+#ifndef IPV6_FRAG_COPYHEADER
+#define IPV6_FRAG_COPYHEADER	(1)
+#endif
+
+
+#define LWIP_TCP_CLOSE_TIMEOUT_MS_DEFAULT (1000)
+
+#define MEM_ALIGNMENT           (8)
 #ifndef MEM_SIZE
 /* packet buffer size of GNRC + stack for TCP/IP */
 #define MEM_SIZE                (TCPIP_THREAD_STACKSIZE + 6144)

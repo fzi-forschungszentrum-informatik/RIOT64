@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2018 HAW-Hamburg
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -76,7 +77,7 @@ static void _print_measurement(sds011_data_t *data)
 void measure_cb(sds011_data_t *data, void *ctx)
 {
     msg_t msg = { .content.value = (((uint32_t)data->pm_10) << 16 | data->pm_2_5) };
-    kernel_pid_t target_pid = (int)ctx;
+    kernel_pid_t target_pid = (uintptr_t)ctx;
     msg_send(&msg, target_pid);
 }
 
@@ -194,7 +195,7 @@ int main(void)
         }
     }
 
-    sds011_register_callback(&dev, measure_cb, (void*)(int)thread_getpid());
+    sds011_register_callback(&dev, measure_cb, (void*)(uintptr_t)thread_getpid());
 
     printf("switching to active reporting mode for %u measurements...\n",
             ACTIVE_REPORTING_TEST_CNT);

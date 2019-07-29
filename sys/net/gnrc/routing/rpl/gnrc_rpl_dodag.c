@@ -2,6 +2,7 @@
  * Copyright (C) 2018       HAW Hamburg
  * Copyright (C) 2015–2017  Cenk Gündoğan <cenk.guendogan@haw-hamburg.de>
  * Copyright (C) 2013–2014  INRIA.
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -176,7 +177,7 @@ bool gnrc_rpl_dodag_init(gnrc_rpl_instance_t *instance, ipv6_addr_t *dodag_id, k
 
 void gnrc_rpl_dodag_remove_all_parents(gnrc_rpl_dodag_t *dodag)
 {
-    gnrc_rpl_parent_t *elt, *tmp;
+    gnrc_rpl_parent_t *elt = NULL, *tmp = NULL;
     LL_FOREACH_SAFE(dodag->parents, elt, tmp) {
         gnrc_rpl_parent_remove(elt);
     }
@@ -306,7 +307,7 @@ static gnrc_rpl_parent_t *_gnrc_rpl_find_preferred_parent(gnrc_rpl_dodag_t *doda
     gnrc_rpl_parent_t *old_best = dodag->parents;
     gnrc_rpl_parent_t *new_best = old_best;
     uint16_t old_rank = dodag->my_rank;
-    gnrc_rpl_parent_t *elt, *tmp;
+    gnrc_rpl_parent_t *elt = NULL, *tmp = NULL;
 
     if (dodag->parents == NULL) {
         return NULL;

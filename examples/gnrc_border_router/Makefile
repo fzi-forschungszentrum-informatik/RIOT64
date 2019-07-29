@@ -25,7 +25,7 @@ BOARD_BLACKLIST += mips-malta pic32-wifire pic32-clicker ruuvitag thingy52
 
 # use ethos (ethernet over serial) for network communication and stdio over
 # UART, but not on native, as native has a tap interface towards the host.
-ifeq (,$(filter native,$(BOARD)))
+ifeq (,$(filter $(BOARD),native native64))
   GNRC_NETIF_NUMOF := 2
   USEMODULE += ethos
 
@@ -89,7 +89,7 @@ QUIET ?= 1
 TAP ?= tap0
 IPV6_PREFIX ?= 2001:db8::/64
 
-ifeq (native,$(BOARD))
+ifneq (,$(filter $(BOARD),native native64))
 TERMDEPS += uhcpd-daemon
 
 .PHONY: uhcpd-daemon

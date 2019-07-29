@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017 OTA keys S.A.
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -30,6 +31,16 @@ extern "C" {
 #include "lfs.h"
 #include "mtd.h"
 #include "mutex.h"
+
+// TODO: Find the actual minimum for 64-bit systems.
+#if (defined(VFS_LARGE_POINTERS) && VFS_FILE_BUFFER_SIZE < 96) ||  (VFS_FILE_BUFFER_SIZE < 52)
+#error "VFS_FILE_BUFFER_SIZE is too small."
+#endif
+
+// TODO: Find the actual minimum for 64-bit systems.
+#if (defined(VFS_LARGE_POINTERS) && VFS_DIR_BUFFER_SIZE < 64) || (VFS_DIR_BUFFER_SIZE < 44)
+#error "VFS_DIR_BUFFER_SIZE is too small."
+#endif
 
 /**
  * @name    littlefs configuration

@@ -6,6 +6,9 @@ BOARD_BLACKLIST := arduino-duemilanove arduino-mega2560 arduino-nano \
                    msb-430 msb-430h telosb waspmote-pro wsn430-v1_3b \
                    wsn430-v1_4 z1
 
+# BUG IN GCC 8.2.0.2 riscv64
+#BOARD_BLACKLIST += rocketchip-generic64bit
+
 BOARD_INSUFFICIENT_MEMORY := nucleo-f031k6 nucleo-f042k6
 
 # required for Monocypher (as described in the package documentation)

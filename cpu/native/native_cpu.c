@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2016 Kaspar Schleiser <kaspar@schleiser.de>
  *               2013 Ludwig Knüpfer <ludwig.knuepfer@fu-berlin.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -19,6 +20,8 @@
  *
  * @author  Ludwig Knüpfer <ludwig.knuepfer@fu-berlin.de>
  * @author  Kaspar Schleiser <kaspar@schleiser.de>
+ * @author      Frederik Haxel <haxel@fzi.de>
+ * @author      Leon Hielscher <hielscher@fzi.de>
  */
 
 #include <stdio.h>
@@ -40,7 +43,7 @@
 #include <valgrind/valgrind.h>
 #define VALGRIND_DEBUG DEBUG
 #else
-#define VALGRIND_STACK_REGISTER(...)
+#define VALGRIND_STACK_REGISTER(...) (0)
 #define VALGRIND_DEBUG(...)
 #endif
 
@@ -81,8 +84,13 @@ static void _native_mod_ctx_leave_sigh(ucontext_t *ctx)
     _native_saved_eip = ((ucontext_t *)ctx)->uc_mcontext.arm_pc;
     ((ucontext_t *)ctx)->uc_mcontext.arm_pc = (unsigned int)&_native_sig_leave_handler;
 #else /* Linux/x86 */
-    _native_saved_eip = ctx->uc_mcontext.gregs[REG_EIP];
-    ctx->uc_mcontext.gregs[REG_EIP] = (unsigned int)&_native_sig_leave_handler;
+    #ifdef __x86_64__
+        _native_saved_eip = ctx->uc_mcontext.gregs[REG_RIP];
+        ctx->uc_mcontext.gregs[REG_RIP] = (unsigned long)&_native_sig_leave_handler;
+    #else
+        _native_saved_eip = ctx->uc_mcontext.gregs[REG_EIP];
+        ctx->uc_mcontext.gregs[REG_EIP] = (unsigned int)&_native_sig_leave_handler;
+    #endif
 #endif
 #endif
 }
@@ -108,9 +116,9 @@ char *thread_stack_init(thread_task_func_t task_func, void *arg, void *stack_sta
     char *stk;
     ucontext_t *p;
 
-    VALGRIND_STACK_REGISTER(stack_start, (char *) stack_start + stacksize);
+    (void) VALGRIND_STACK_REGISTER(stack_start, (char *) stack_start + stacksize);
     VALGRIND_DEBUG("VALGRIND_STACK_REGISTER(%p, %p)\n",
-                   stack_start, (void*)((int)stack_start + stacksize));
+                   stack_start, (void*)((uintptr_t)stack_start + stacksize));
 
     DEBUG("thread_stack_init\n");
 
@@ -238,9 +246,9 @@ void native_cpu_init(void)
     end_context.uc_stack.ss_size = SIGSTKSZ;
     end_context.uc_stack.ss_flags = 0;
     makecontext(&end_context, sched_task_exit, 0);
-    VALGRIND_STACK_REGISTER(__end_stack, __end_stack + sizeof(__end_stack));
+    (void) VALGRIND_STACK_REGISTER(__end_stack, __end_stack + sizeof(__end_stack));
     VALGRIND_DEBUG("VALGRIND_STACK_REGISTER(%p, %p)\n",
-                   (void*)__end_stack, (void*)((int)__end_stack + sizeof(__end_stack)));
+                   (void*)__end_stack, (void*)((uintptr_t)__end_stack + sizeof(__end_stack)));
 
     DEBUG("RIOT native cpu initialized.\n");
 }

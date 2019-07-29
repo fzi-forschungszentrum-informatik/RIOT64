@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015 Freie Universität Berlin
  * Copyright (C) 2018 Inria
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -18,6 +19,7 @@
  * @author      Olaf Bergmann <bergmann@tzi.org>
  * @author      Hauke Mehrtens <hauke@hauke-m.de>
  * @author      Oliver Hahm <oliver.hahm@inria.fr>
+ * @author      Frederik Haxel <haxel@fzi.de>
  *
  * @}
  */
@@ -268,7 +270,7 @@ static int _peer_verify_ecdsa_key_handler(struct dtls_context_t *ctx,
 /* DTLS variables and register are initialized. */
 dtls_context_t *_server_init_dtls(dtls_remote_peer_t *remote_peer)
 {
-    dtls_context_t *new_context = NULL;
+    dtls_context_t *new_context;
 
     static dtls_handler_t cb = {
         .write = _send_to_peer_handler,

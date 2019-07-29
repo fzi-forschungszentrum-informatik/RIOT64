@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 OTA keys S.A.
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -55,7 +56,7 @@ extern "C" {
 #include "mutex.h"
 
 /** Size of the buffer needed for directory */
-#define SPIFFS_DIR_SIZE (12)
+#define SPIFFS_DIR_SIZE (24)
 
 #if (VFS_DIR_BUFFER_SIZE < SPIFFS_DIR_SIZE)
 #error "VFS_DIR_BUFFER_SIZE too small"
@@ -96,7 +97,12 @@ extern "C" {
  * A file descriptor normally is around 32 bytes depending on the build config -
  * the bigger the buffer, the more file descriptors are available.
  */
+#ifdef VFS_LARGE_POINTERS
+#define SPIFFS_FS_FD_SPACE_SIZE (4 * 48)
+#else
 #define SPIFFS_FS_FD_SPACE_SIZE (4 * 32)
+#endif
+
 #endif
 /** @} */
 

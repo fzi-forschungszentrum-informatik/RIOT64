@@ -412,6 +412,7 @@ endif
 
 ifneq (,$(filter sds011,$(USEMODULE)))
   FEATURES_REQUIRED += periph_uart
+  FEATURES_REQUIRED += periph_gpio
 endif
 
 ifneq (,$(filter servo,$(USEMODULE)))
@@ -430,6 +431,11 @@ ifneq (,$(filter sht2x,$(USEMODULE)))
 endif
 
 ifneq (,$(filter sht3x,$(USEMODULE)))
+  USEMODULE += xtimer
+  FEATURES_REQUIRED += periph_i2c
+endif
+
+ifneq (,$(filter shtc3,$(USEMODULE)))
   USEMODULE += xtimer
   FEATURES_REQUIRED += periph_i2c
 endif
@@ -539,4 +545,14 @@ ifneq (,$(filter xbee,$(USEMODULE)))
   USEMODULE += ieee802154
   USEMODULE += xtimer
   USEMODULE += netif
+endif
+
+ifneq (,$(filter rocketif,$(USEMODULE)))
+  USEMODULE += netif
+  USEMODULE += iolist
+  USEMODULE += netdev_eth
+endif
+
+ifneq (,$(filter hotsnot_conf,$(USEMODULE)))
+  FEATURES_REQUIRED += periph_i2c
 endif

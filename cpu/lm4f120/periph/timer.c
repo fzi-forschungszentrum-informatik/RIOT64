@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015 Rakendra Thapa <rakendrathapa@gmail.com
  *               2015 Marc Poulhiès <dkm@kataplop.net>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser General
  * Public License v2.1. See the file LICENSE in the top level directory for more
@@ -80,7 +81,7 @@ int timer_init(tim_t dev, unsigned long freq, timer_cb_t cb, void *arg)
     unsigned int timer_base;
     unsigned int timer_side = TIMER_A;
     unsigned int timer_cfg = TIMER_CFG_SPLIT_PAIR | TIMER_CFG_A_PERIODIC_UP | TIMER_TAMR_TAMIE;
-    unsigned int timer_max_val;
+    unsigned int timer_max_val = TIMER_0_MAX_VALUE;
     unsigned int timer_intbit = TIMER_TIMA_TIMEOUT | TIMER_TIMA_MATCH;
 
     switch(dev){

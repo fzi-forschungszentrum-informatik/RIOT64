@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -34,11 +35,11 @@ static void test_flashbase_addr(void)
     void *addr;
 
     addr = flashpage_addr(0);
-    TEST_ASSERT_EQUAL_INT((int)CPU_FLASH_BASE, (int)addr);
+    TEST_ASSERT_EQUAL_INT((int)CPU_FLASH_BASE, (uintptr_t)addr);
     addr = flashpage_addr(FLASHPAGE_NUMOF - 1);
-    TEST_ASSERT_EQUAL_INT((long)CPU_FLASH_BASE + (((unsigned)FLASHPAGE_NUMOF - 1) * FLASHPAGE_SIZE), (int)addr);
+    TEST_ASSERT_EQUAL_INT((long)CPU_FLASH_BASE + (((unsigned)FLASHPAGE_NUMOF - 1) * FLASHPAGE_SIZE), (uintptr_t)addr);
     addr = flashpage_addr(12);
-    TEST_ASSERT_EQUAL_INT((int)CPU_FLASH_BASE + (12 * FLASHPAGE_SIZE), (int)addr);
+    TEST_ASSERT_EQUAL_INT((int)CPU_FLASH_BASE + (12 * FLASHPAGE_SIZE), (uintptr_t)addr);
 }
 
 static void test_flashbase_page(void)

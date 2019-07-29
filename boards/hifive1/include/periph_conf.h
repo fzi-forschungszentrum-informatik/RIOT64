@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2017 Ken Rabold
- *
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
+ * 
  * This file is subject to the terms and conditions of the GNU Lesser General
  * Public License v2.1. See the file LICENSE in the top level directory for more
  * details.
@@ -23,6 +24,11 @@
 extern "C" {
 #endif
 
+#include "periph_cpu.h"
+
+#define RV_CORE_TIMER_FREQ	(32768ul)
+
+
 /**
  * @name    Core Clock configuration
  * @{
@@ -37,8 +43,8 @@ extern "C" {
  */
 #define XTIMER_DEV                  (0)
 #define XTIMER_CHAN                 (0)
-#define XTIMER_WIDTH                (32)
-#define XTIMER_HZ                   (32768ul)
+#define XTIMER_WIDTH                (64)
+#define XTIMER_HZ                   RV_CORE_TIMER_FREQ
 /** @} */
 
 /**

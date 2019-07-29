@@ -7,13 +7,14 @@
  */
 
 /**
- * @ingroup         cpu_fe310
+ * @defgroup        cpu_fe310 FE310
  * @{
  *
  * @file
  * @brief           CPU specific configuration options
  *
  * @author          Ken Rabold
+ * @}
  */
 
 #ifndef CPU_CONF_H

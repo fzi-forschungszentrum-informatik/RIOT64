@@ -23,6 +23,7 @@ BOARD_INSUFFICIENT_MEMORY := airfy-beacon \
                              feather-m0 \
                              firefly \
                              hamilton \
+			     hifive1 \
                              ikea-tradfri \
                              limifrog-v1 maple-mini \
                              lobaro-lorabox \

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014-2015 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -46,6 +47,16 @@ extern "C" {
 #ifndef TIMER_UNDEF
 #define TIMER_UNDEF         (UINT_MAX)
 #endif
+
+
+
+#ifdef TIMER_64BIT_HW
+#include <stdint.h>
+typedef uint64_t timer_val_t;      /**< value for 64-bit timers */
+#else
+typedef unsigned int timer_val_t;  /**< value for 32-bit timers */
+#endif
+
 
 /**
  * @brief   Default timer type
@@ -111,7 +122,7 @@ int timer_init(tim_t dev, unsigned long freq, timer_cb_t cb, void *arg);
  * @return                  1 on success
  * @return                  -1 on error
  */
-int timer_set(tim_t dev, int channel, unsigned int timeout);
+int timer_set(tim_t dev, int channel, timer_val_t timeout);
 
 /**
  * @brief Set an absolute timeout value for the given channel of the given timer
@@ -124,7 +135,7 @@ int timer_set(tim_t dev, int channel, unsigned int timeout);
  * @return                  1 on success
  * @return                  -1 on error
  */
-int timer_set_absolute(tim_t dev, int channel, unsigned int value);
+int timer_set_absolute(tim_t dev, int channel, timer_val_t value);
 
 /**
  * @brief Clear the given channel of the given timer device
@@ -144,7 +155,7 @@ int timer_clear(tim_t dev, int channel);
  *
  * @return                  the timers current value
  */
-unsigned int timer_read(tim_t dev);
+timer_val_t timer_read(tim_t dev);
 
 /**
  * @brief Start the given timer

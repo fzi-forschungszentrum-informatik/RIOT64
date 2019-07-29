@@ -4,6 +4,7 @@
 # Copyright (C) 2014  René Kijewski  <rene.kijewski@fu-berlin.de>
 # Copyright (C) 2015  Philipp Rosenkranz  <philipp.rosenkranz@fu-berlin.de>
 # Copyright (C) 2016  Eistec AB
+# Copyright (C) 2019 FZI Forschungszentrum Informatik
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -131,7 +132,7 @@ def build_all():
             try:
                 app_dir = join(riotbase, folder, application)
                 subprocess = Popen(('make', 'buildtest'),
-                                   bufsize=1, stdin=null, stdout=PIPE, stderr=null,
+                                   bufsize=1, stdin=null, stdout=PIPE, stderr=PIPE,
                                    cwd=app_dir,
                                    env=subprocess_env)
 
@@ -142,8 +143,8 @@ def build_all():
                 success_with_output = list(filter(lambda res: 'success' in res[0], results_with_output))
                 # check if bin-directory isn't in system's PATH to not accidentally
                 # delete some valuable system executable ;-)
-                if join(app_dir, "bin") not in environ.get("PATH", "/bin:/usr/bin:/usr/local/bin:"):
-                    check_call(["rm", "-rf", join(app_dir, "bin")])
+                # if join(app_dir, "bin") not in environ.get("PATH", "/bin:/usr/bin:/usr/local/bin:"):
+                #     check_call(["rm", "-rf", join(app_dir, "bin")])
                 print()
                 for group, result in results:
                     print('\t\t{}: {}'.format(group, ', '.join(sorted(board for outcome, board, output in result))))

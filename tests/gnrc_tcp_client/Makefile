@@ -7,6 +7,10 @@ ifeq (native,$(BOARD))
   PORT ?= tap1
 endif
 
+ifeq (native64,$(BOARD))
+  PORT ?= tap1
+endif
+
 TCP_SERVER_ADDR ?= 2001:db8::affe:0001
 TCP_SERVER_PORT ?= 80
 TCP_CLIENT_ADDR ?= 2001:db8::affe:0002

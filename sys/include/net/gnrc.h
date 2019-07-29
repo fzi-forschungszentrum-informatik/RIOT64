@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik:wq
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -158,8 +159,8 @@
  * --------------------
  *
  * A packet is transmitted by relaying it to threads interested in handling (and
- * dispatching) packets of its type. To do this, the @ref net_gnrc_netapi
- * offers dispatch helper functions called @ref gnrc_netapi_dispatch_send()
+ * dispatching) packets of its type. To do this, the net_gnrc_netapi
+ * offers dispatch helper functions called gnrc_netapi_dispatch_send()
  * and gnrc_netapi_dispatch_receive().
  *
  * The following example sketches the usage and assumes a valid @ref
@@ -191,14 +192,14 @@
  * net_gnrc_pkt. Note that at this point, the threads receiving pkt act as its
  * owners, so please don't modify pkt after calling any dispatch function.
  *
- * If @ref gnrc_netapi_dispatch_send() is replaced by @ref
+ * If gnrc_netapi_dispatch_send() is replaced by
  * gnrc_netapi_dispatch_receive() then threads will receive the @ref
  * GNRC_NETAPI_MSG_TYPE_RCV command instead, again with access to the @ref
  * net_gnrc_pkt.
  *
  * @note If the data to be sent requires extra headers to be added for successful
  *       transmission (in the example, this would be IP and UDP headers), these
- *       have to be built manually before calling @ref gnrc_netapi_dispatch_send().
+ *       have to be built manually before calling gnrc_netapi_dispatch_send().
  *       In the interest of conciseness, this is omitted in this tutorial;
  *       please refer to @ref gnrc_udp_hdr_build(), @ref gnrc_ipv6_hdr_build()
  *       etc. for more information.

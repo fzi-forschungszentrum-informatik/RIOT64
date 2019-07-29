@@ -3,6 +3,7 @@
  *                    Freie Universität Berlin
  *                    HAW Hamburg
  *                    Kaspar Schleiser <kaspar@schleiser.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -331,6 +332,23 @@ typedef struct sock_ip sock_ip_t;
  */
 int sock_ip_create(sock_ip_t *sock, const sock_ip_ep_t *local,
                    const sock_ip_ep_t *remote, uint8_t proto, uint16_t flags);
+/**
+ * @brief   same as @ref sock_ip_create(), but with callback.
+ *
+ * @pre `(sock != NULL)`
+ *
+ * @param[out] sock     See @ref sock_ip_create().
+ * @param[in] local     See @ref sock_ip_create().
+ * @param[in] remote    See @ref sock_ip_create().
+ * @param[in] proto     See @ref sock_ip_create().
+ * @param[in] flags     See @ref sock_ip_create().
+ * @param[in] callback     Callback function, maybe 0.
+ *
+ * @return  0 on success.
+ * @return  See @ref sock_ip_create().
+ */
+int sock_ip_create_callback(sock_ip_t *sock, const sock_ip_ep_t *local,
+                   const sock_ip_ep_t *remote, uint8_t proto, uint16_t flags, callback_t callback);
 
 /**
  * @brief   Closes a raw IPv4/IPv6 sock object

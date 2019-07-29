@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015 Daniel Krebs
  *               2016 INRIA
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -217,7 +218,7 @@ static uint8_t _send_wr(gnrc_netif_t *netif)
     int res = _gnrc_lwmac_transmit(netif, pkt);
     if (res < 0) {
         LOG_ERROR("ERROR: [LWMAC-tx] Send WR failed.");
-        if (pkt != NULL) {
+        {
             gnrc_pktbuf_release(pkt);
         }
         tx_info |= GNRC_LWMAC_TX_FAIL;

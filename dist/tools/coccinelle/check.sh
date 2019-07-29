@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # Copyright 2017 Kaspar Schleiser <kaspar@schleiser.de>
+# Copyright (C) 2019 FZI Forschungszentrum Informatik
 #
 # This file is subject to the terms and conditions of the GNU Lesser
 # General Public License v2.1. See the file LICENSE in the top level
@@ -32,12 +33,12 @@ coccinelle_checkone() {
         --sp-file $patch ${FILES} | filter)"
 
     if [ -n "$OUT" ]; then
+        if [ $COCCINELLE_WARNONLY -eq 0 ]; then
+           EXIT_CODE=1
+        fi
         if [ $COCCINELLE_QUIET -eq 1 ]; then
             echo "$patch:"
             echo "$OUT" | indent
-            if [ COCCINELLE_WARNONLY -eq 0 ]; then
-                EXIT_CODE=1
-            fi
         else
             echo "$OUT"
         fi
@@ -69,7 +70,7 @@ fi
 if [ -z "$*" ]; then
     coccinelle_checkall "${RIOTTOOLS}"/coccinelle/force
 
-    COCCINELLE_WARNONLY=1 coccinelle_checkall "${RIOTTOOLS}"/coccinelle/warn
+    COCCINELLE_WARNONLY=0 coccinelle_checkall "${RIOTTOOLS}"/coccinelle/warn
 else
     for patch in "$@"; do
         coccinelle_checkone "$patch"

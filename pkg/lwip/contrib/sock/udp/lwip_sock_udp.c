@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -28,6 +29,12 @@
 int sock_udp_create(sock_udp_t *sock, const sock_udp_ep_t *local,
                     const sock_udp_ep_t *remote, uint16_t flags)
 {
+	return sock_udp_create_callback(sock, local, remote, flags, NULL);
+}
+
+int sock_udp_create_callback(sock_udp_t *sock, const sock_udp_ep_t *local,
+                    const sock_udp_ep_t *remote, uint16_t flags, callback_t callback)
+{
     assert(sock != NULL);
     assert(remote == NULL || remote->port != 0);
 
@@ -36,7 +43,7 @@ int sock_udp_create(sock_udp_t *sock, const sock_udp_ep_t *local,
 
     if ((res = lwip_sock_create(&tmp, (struct _sock_tl_ep *)local,
                                 (struct _sock_tl_ep *)remote, 0, flags,
-                                NETCONN_UDP)) == 0) {
+                                NETCONN_UDP, (netconn_callback) callback)) == 0) {
         sock->conn = tmp;
     }
     return res;

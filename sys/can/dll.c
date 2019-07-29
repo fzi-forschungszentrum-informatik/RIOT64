@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 OTA keys S.A.
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser General
  * Public License v2.1. See the file LICENSE in the top level directory for more
@@ -112,7 +113,7 @@ int raw_can_abort(int ifnum, int handle)
 {
     msg_t msg, reply;
     can_pkt_t *pkt = NULL;
-    can_reg_entry_t *entry;
+    can_reg_entry_t *entry = NULL;
 
     assert(ifnum < candev_nb);
 

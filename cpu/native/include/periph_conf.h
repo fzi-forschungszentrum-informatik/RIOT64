@@ -2,6 +2,7 @@
  * Native CPU peripheral configuration
  *
  * Copyright (C) 2014 Ludwig Knüpfer <ludwig.knuepfer@fu-berlin.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -19,6 +20,8 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
+
+#include "periph_cpu.h"
 
 /**
  * @name hardware timer clock skew avoidance
@@ -47,6 +50,11 @@
  */
 #define TIMER_NUMOF        (1U)
 #define TIMER_0_EN         1
+
+#ifdef TIMER_64BIT_HW
+#define XTIMER_WIDTH                (64)
+#endif
+
 
 /**
  * @brief xtimer configuration

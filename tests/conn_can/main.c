@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 OTA keys S.A.
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser General
  * Public License v2.1. See the file LICENSE in the top level directory for more
@@ -546,7 +547,7 @@ static int _can_handler(int argc, char **argv)
 
 static void *_receive_thread(void *args)
 {
-    int thread_nb = (int)args;
+    int thread_nb = (uintptr_t)args;
     struct can_frame frame;
     msg_t msg, msg_queue[RECEIVE_THREAD_MSG_QUEUE_SIZE];
 
@@ -620,7 +621,7 @@ static const shell_command_t _commands[] = {
 
 int main(void)
 {
-    for (int i = 0; i < RCV_THREAD_NUMOF; i++) {
+    for (uintptr_t i = 0; i < RCV_THREAD_NUMOF; i++) {
         receive_pid[i] = thread_create(thread_stack[i], THREAD_STACKSIZE,
                                        THREAD_PRIORITY_MAIN - 1,
                                        THREAD_CREATE_STACKTEST, _receive_thread,

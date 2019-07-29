@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017 INRIA
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -85,8 +86,10 @@ extern "C" {
 #define GNRC_GOMACH_SUPERFRAME_DURATION_US        (300LU * US_PER_MS)
 #endif
 
-#if ((GNRC_GOMACH_SUPERFRAME_DURATION_US < ((1000LU *US_PER_MS) / RTT_FREQUENCY)) || \
-     (GNRC_GOMACH_SUPERFRAME_DURATION_US < (10 *GNRC_GOMACH_CP_DURATION_US)))
+#if (RTT_FREQUENCY == 0)
+#error "(RTT_FREQUENCY == 0)"
+#elif(GNRC_GOMACH_SUPERFRAME_DURATION_US < ((1000LU *US_PER_MS) / RTT_FREQUENCY)) || \
+     (GNRC_GOMACH_SUPERFRAME_DURATION_US < (10 *GNRC_GOMACH_CP_DURATION_US))
 #undef GNRC_GOMACH_SUPERFRAME_DURATION_US
 #if (((1000LU *US_PER_MS) / RTT_FREQUENCY) > (10 * GNRC_GOMACH_CP_DURATION_US))
 #define GNRC_GOMACH_SUPERFRAME_DURATION_US        ((1000LU * US_PER_MS) / RTT_FREQUENCY)

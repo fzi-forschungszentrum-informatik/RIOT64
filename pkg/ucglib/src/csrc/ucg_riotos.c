@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Bas Stottelaar <basstottelaar@gmail.com>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -53,7 +54,7 @@ static void ucg_enable_pins(gpio_t *pins, uint32_t pins_enabled)
     uint8_t i;
 
     for (i = 0; i < 32; i++) {
-        if (pins_enabled & (1 << i)) {
+        if (pins_enabled & (1u << i)) {
             if (pins[i] != GPIO_UNDEF) {
                 if (i < UCG_PIN_COUNT) {
                     gpio_init(pins[i], GPIO_OUT);

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014 Hamburg University of Applied Sciences
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -32,8 +33,8 @@ volatile uint32_t storage = 1;
 
 void *run(void *parameter)
 {
-    int arg = (int) parameter;
-    printf("My arg: %d\n", arg);
+    unsigned int arg = (uintptr_t) parameter;
+    printf("My arg: %u\n", arg);
 
     int err = pthread_mutex_lock(&mtx);
 
@@ -56,9 +57,13 @@ int main(void)
     pthread_attr_init(&th_attr);
     pthread_mutex_init(&mtx, NULL);
 
-    for (int i = 0; i < NUM_THREADS; ++i) {
-        printf("Creating thread with arg %d\n", (i + 1));
-        pthread_create(&ths[i], &th_attr, run, (void *)(i + 1));
+    for (uintptr_t i = 0; i < NUM_THREADS; ++i) {
+        printf("Creating thread with arg %"PRIdPTR"\n", (i + 1));
+        int error =  pthread_create(&ths[i], &th_attr, run, (void *)(i + 1));
+        if (error < 0) {
+			puts("FAILURE: Thread creation failed.");
+			return 0;
+		}
     }
 
     for (int i = 0; i < NUM_THREADS; ++i) {

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Hamburg University of Applied Sciences (HAW)
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -43,6 +44,10 @@
 
 #include "riot/detail/thread_util.hpp"
 
+#ifdef USE_LAZY_FPU_CONTEXT
+#include "fpu_context.h"
+#endif
+
 namespace riot {
 
 namespace {
@@ -67,6 +72,9 @@ struct thread_data {
   std::atomic<unsigned> ref_count;
   kernel_pid_t joining_thread;
   std::array<char, stack_size> stack;
+#ifdef USE_LAZY_FPU_CONTEXT
+  alignas(FPU_CONTEXT_ALINGMENT)struct fpu_context fpu_context;
+#endif
   /** @endcond */
 };
 
@@ -354,9 +362,15 @@ thread::thread(F&& f, Args&&... args)
     <thread_data*, typename decay<F>::type, typename decay<Args>::type...>;
   unique_ptr<func_and_args> p(
     new func_and_args(m_data.get(), forward<F>(f), forward<Args>(args)...));
-  m_handle = thread_create(
-    m_data->stack.data(), stack_size, THREAD_PRIORITY_MAIN - 1, 0,
+ #ifdef USE_LAZY_FPU_CONTEXT
+  m_handle = thread_create_with_fp(
+    m_data->stack.data(), stack_size, &(m_data->fpu_context), THREAD_PRIORITY_MAIN - 1, 0,
     &thread_proxy<func_and_args>, p.get(), "riot_cpp_thread");
+#else
+  m_handle = thread_create(
+      m_data->stack.data(), stack_size, THREAD_PRIORITY_MAIN - 1, 0,
+      &thread_proxy<func_and_args>, p.get(), "riot_cpp_thread");
+#endif
   if (m_handle >= 0) {
     p.release();
   } else {

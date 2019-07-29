@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2014 Martin Landsmann <Martin.Landsmann@HAW-Hamburg.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -711,7 +712,7 @@ static int fib_sr_check_lifetime(fib_sr_t *fib_sr)
         fib_sr->sr_lifetime = 0;
 
         if (fib_sr->sr_path != NULL) {
-            fib_sr_entry_t *elt;
+            fib_sr_entry_t *elt = NULL;
             LL_FOREACH(fib_sr->sr_path, elt) {
                 universal_address_rem(elt->address);
             }
@@ -854,7 +855,7 @@ int fib_sr_delete(fib_table_t *table, fib_sr_t *fib_sr)
     fib_sr->sr_lifetime = 0;
 
     if (fib_sr->sr_path != NULL) {
-        fib_sr_entry_t *elt, *tmp;
+        fib_sr_entry_t *elt = NULL, *tmp = NULL;
         LL_FOREACH_SAFE(fib_sr->sr_path, elt, tmp) {
             universal_address_rem(elt->address);
             elt->address = NULL;
@@ -920,7 +921,7 @@ int fib_sr_search(fib_table_t *table, fib_sr_t *fib_sr, uint8_t *addr, size_t ad
         return -ENOENT;
     }
 
-    fib_sr_entry_t *elt;
+    fib_sr_entry_t *elt = NULL;
     LL_FOREACH(fib_sr->sr_path, elt) {
         size_t addr_size_match = addr_size << 3;
         if (universal_address_compare(elt->address, addr, &addr_size_match) == UNIVERSAL_ADDRESS_EQUAL) {
@@ -953,7 +954,7 @@ int fib_sr_entry_append(fib_table_t *table, fib_sr_t *fib_sr,
         return -ENOENT;
     }
 
-    fib_sr_entry_t *elt;
+    fib_sr_entry_t *elt = NULL;
     LL_FOREACH(fib_sr->sr_path, elt) {
         size_t addr_size_match = addr_size << 3;
         if (universal_address_compare(elt->address, addr, &addr_size_match) == UNIVERSAL_ADDRESS_EQUAL) {
@@ -999,7 +1000,7 @@ int fib_sr_entry_add(fib_table_t *table, fib_sr_t *fib_sr,
     }
 
     bool found = false;
-    fib_sr_entry_t *elt;
+    fib_sr_entry_t *elt = NULL;
     LL_FOREACH(fib_sr->sr_path, elt) {
         size_t addr_size_match = addr_size << 3;
         if (universal_address_compare(elt->address, addr, &addr_size_match) == UNIVERSAL_ADDRESS_EQUAL) {
@@ -1023,7 +1024,7 @@ int fib_sr_entry_add(fib_table_t *table, fib_sr_t *fib_sr,
                 new_entry[0]->next = remaining;
             }
             else {
-                fib_sr_entry_t *elt, *tmp;
+                fib_sr_entry_t *elt = NULL, *tmp = NULL;
                 LL_FOREACH_SAFE(remaining, elt, tmp) {
                     universal_address_rem(elt->address);
                     elt->address = NULL;
@@ -1053,8 +1054,8 @@ int fib_sr_entry_delete(fib_table_t *table, fib_sr_t *fib_sr, uint8_t *addr, siz
         return -ENOENT;
     }
 
-    fib_sr_entry_t *elt, *tmp;
-    tmp = fib_sr->sr_path;
+    fib_sr_entry_t *elt = NULL;
+    fib_sr_entry_t *tmp = fib_sr->sr_path;
     LL_FOREACH(fib_sr->sr_path, elt) {
         size_t addr_size_match = addr_size << 3;
 
@@ -1064,7 +1065,7 @@ int fib_sr_entry_delete(fib_table_t *table, fib_sr_t *fib_sr, uint8_t *addr, siz
                 tmp->next = elt->next;
             }
             else {
-                fib_sr_entry_t *elt_del, *tmp_del;
+                fib_sr_entry_t *elt_del = NULL, *tmp_del = NULL;
                 LL_FOREACH_SAFE(tmp, elt_del, tmp_del) {
                     universal_address_rem(elt_del->address);
                     elt_del->address = NULL;
@@ -1104,8 +1105,7 @@ int fib_sr_entry_overwrite(fib_table_t *table, fib_sr_t *fib_sr,
         return -ENOENT;
     }
 
-    fib_sr_entry_t *elt, *elt_repl;
-    elt_repl = NULL;
+    fib_sr_entry_t *elt = NULL, *elt_repl = NULL;
     LL_FOREACH(fib_sr->sr_path, elt) {
         size_t addr_old_size_match = addr_old_size << 3;
         size_t addr_new_size_match = addr_old_size << 3;
@@ -1153,7 +1153,7 @@ int fib_sr_entry_get_address(fib_table_t *table, fib_sr_t *fib_sr, fib_sr_entry_
         return -ENOENT;
     }
 
-    fib_sr_entry_t *elt;
+    fib_sr_entry_t *elt = NULL;
     LL_FOREACH(fib_sr->sr_path, elt) {
         if (elt == sr_entry) {
             if (universal_address_get_address(elt->address, addr, addr_size) != NULL) {
@@ -1190,7 +1190,7 @@ fib_sr_t* hit = NULL;
     for (size_t i = 0; i < table->size; ++i) {
         if (table->data.source_routes->headers[i].sr_lifetime != 0) {
 
-            fib_sr_entry_t *elt;
+            fib_sr_entry_t *elt = NULL;
             LL_FOREACH(table->data.source_routes->headers[i].sr_path, elt) {
                 size_t addr_size_match = dst_size << 3;
                 if (universal_address_compare(elt->address, dst, &addr_size_match) == UNIVERSAL_ADDRESS_EQUAL) {
@@ -1221,7 +1221,7 @@ fib_sr_t* hit = NULL;
                                 new_sr->sr_path = NULL;
 
                                 /* and the path until the searched destination */
-                                fib_sr_entry_t *elt_iter, *elt_add = NULL;
+                                fib_sr_entry_t *elt_iter = NULL, *elt_add = NULL;
 
                                 LL_FOREACH(table->data.source_routes->headers[i].sr_path, elt_iter) {
                                     fib_sr_entry_t *new_entry;
@@ -1365,7 +1365,7 @@ int fib_sr_get_route(fib_table_t *table, uint8_t *dst, size_t dst_size, kernel_p
                 hit->sr_lifetime = 0;
 
                 if (hit->sr_path != NULL) {
-                    fib_sr_entry_t *elt, *tmp;
+                    fib_sr_entry_t *elt = NULL, *tmp = NULL;
                     LL_FOREACH_SAFE(hit->sr_path, elt, tmp) {
                         universal_address_rem(elt->address);
                         elt->address = NULL;

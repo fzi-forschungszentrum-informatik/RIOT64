@@ -501,9 +501,12 @@ ifneq (, $(filter clean, $(MAKECMDGOALS)))
     all $(BASELIBS) $(BUILDDEPS) ..in-docker-container: clean
 endif
 
-.PHONY: pkg-prepare pkg-build pkg-build-%
+.PHONY: pkg-prepare pkg-git-cache-add pkg-build pkg-build-%
 pkg-prepare:
 	-@for i in $(USEPKG) ; do "$(MAKE)" -C $(RIOTPKG)/$$i prepare ; done
+
+pkg-git-cache-add:
+	-@for i in $(USEPKG) ; do "$(MAKE)" -C $(RIOTPKG)/$$i git-cache-add ; done
 
 pkg-build: $(USEPKG:%=pkg-build-%)
 pkg-build-%: $(BUILDDEPS)
@@ -543,7 +546,7 @@ flash-only: $(FLASHDEPS)
 preflash: $(BUILD_BEFORE_FLASH)
 	$(PREFLASHER) $(PREFFLAGS)
 
-term: $(filter flash, $(MAKECMDGOALS)) $(TERMDEPS)
+term:  $(filter flash, $(MAKECMDGOALS)) $(TERMDEPS)
 	$(call check_cmd,$(TERMPROG),Terminal program)
 	$(TERMPROG) $(TERMFLAGS)
 
@@ -564,6 +567,18 @@ debug-server:
 emulate:
 	$(call check_cmd,$(EMULATOR),Emulation program)
 	$(EMULATOR) $(EMULATOR_FLAGS)
+
+qemu:
+	$(call check_cmd, $(QEMU), QEMU)
+	$(Q) echo RUNNING QEMU: $(QEMU) $(QEMU_FLAGS) --kernel $(ELFFILE)
+	$(Q) echo =====================================================================================
+	$(Q) echo
+	$(Q) $(QEMU) $(QEMU_FLAGS) --kernel $(ELFFILE)
+
+test-qemu: $(TEST_DEPS)
+	$(Q) for t in $(TESTS); do \
+		$$t || exit 1; \
+	done
 
 reset:
 	$(call check_cmd,$(RESET),Reset program)

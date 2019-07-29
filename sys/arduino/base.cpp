@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser General
  * Public License v2.1. See the file LICENSE in the top level directory for more
@@ -77,7 +78,7 @@ unsigned long micros()
  * 0: Not initialized
  * 1: Successfully initialized
  */
-static uint16_t adc_line_state = 0;
+uint16_t adc_line_state = 0;
 
 int analogRead(int arduino_pin)
 {
@@ -86,13 +87,16 @@ int analogRead(int arduino_pin)
     /* Check if the ADC line is valid */
     assert((arduino_pin >= 0) && (arduino_pin < (int)ANALOG_PIN_NUMOF));
 
+    uint16_t bit_mask = (1u) << arduino_pin;
+    bool isSet = adc_line_state & bit_mask;
+
     /* Initialization of given ADC channel */
-    if (!(adc_line_state & (1 << arduino_pin))) {
+    if (!isSet) {
         if (adc_init(arduino_analog_map[arduino_pin]) != 0) {
             return -1;
         }
         /* The ADC channel is initialized */
-        adc_line_state |= 1 << arduino_pin;
+        adc_line_state |= bit_mask;
     }
 
     /* Read the ADC channel */

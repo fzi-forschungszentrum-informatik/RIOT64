@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2016 Kaspar Schleiser <kaspar@schleiser.de>
  *               2018 Freie Universität Berlin
+ *               2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -52,7 +53,7 @@ static void callback(event_t *arg)
     order++;
     assert(order == 3);
     assert(arg == &event);
-    printf("triggered 0x%08x\n", (unsigned)arg);
+    printf("triggered 0x%" PRIxPTR "\n", (uintptr_t)arg);
 }
 
 typedef struct {
@@ -80,7 +81,7 @@ static void timed_callback(void *arg)
     assert(arg == event_callback.arg);
     uint32_t now = xtimer_now_usec();
     assert((now - before >= 100000LU));
-    printf("triggered timed callback with arg 0x%08x after %" PRIu32 "us\n", (unsigned)arg, now - before);
+    printf("triggered timed callback with arg 0x%" PRIxPTR " after %" PRIu32 "us\n", (uintptr_t)arg, now - before);
     puts("[SUCCESS]");
 }
 
@@ -143,12 +144,12 @@ int main(void)
     /* test posting different kind of events in order to a statically
      * initialized queue */
     event_queue_t queue = EVENT_QUEUE_INIT;
-    printf("posting 0x%08x\n", (unsigned)&event);
+    printf("posting 0x%" PRIxPTR "\n", (uintptr_t)&event);
     event_post(&queue, &event);
 
-    printf("posting 0x%08x\n", (unsigned)&event2);
+    printf("posting 0x%" PRIxPTR "\n", (uintptr_t)&event2);
     event_post(&queue, &event2);
-    printf("canceling 0x%08x\n", (unsigned)&event2);
+    printf("canceling 0x%" PRIxPTR "\n", (uintptr_t)&event2);
     event_cancel(&queue, &event2);
 
     puts("posting custom event");

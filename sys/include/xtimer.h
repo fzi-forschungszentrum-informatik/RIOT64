@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015 Kaspar Schleiser <kaspar@schleiser.de>
  * Copyright (C) 2016 Eistec AB
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -37,6 +38,15 @@
 #include "board.h"
 #include "periph_conf.h"
 
+#if defined(__GNUC__)
+#define _NON_ISO_EXT_ __extension__
+#else
+/**
+ * Required to stop compiler from complaining about anonymous structs
+ */
+#define _NON_ISO_EXT_
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -67,6 +77,30 @@ typedef void (*xtimer_callback_t)(void*);
 /**
  * @brief xtimer timer structure
  */
+
+#ifdef TIMER_64BIT_HW
+typedef struct xtimer {
+    struct xtimer *next;         /**< reference to next timer in timer lists */
+
+    _NON_ISO_EXT_ union {
+    	uint64_t target64;
+    	struct {
+#if (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+    		uint32_t long_target;
+    		uint32_t target;
+#else
+    		uint32_t target;		/**< lower 32bit absolute target time */
+    		uint32_t long_target;	 /**< upper 32bit absolute target time */
+#endif
+    	};
+    };
+
+    xtimer_callback_t callback;  /**< callback function to call when timer
+                                     expires */
+    void *arg;                   /**< argument to pass to callback function */
+} xtimer_t;
+
+#else
 typedef struct xtimer {
     struct xtimer *next;         /**< reference to next timer in timer lists */
     uint32_t target;             /**< lower 32bit absolute target time */
@@ -75,6 +109,7 @@ typedef struct xtimer {
                                      expires */
     void *arg;                   /**< argument to pass to callback function */
 } xtimer_t;
+#endif
 
 /**
  * @brief get the current system time as 32bit time stamp value
@@ -480,7 +515,7 @@ void xtimer_set_timeout_flag(xtimer_t *t, uint32_t timeout);
  * This is supposed to be defined per-device in e.g., periph_conf.h.
  */
 #ifndef XTIMER_BACKOFF
-#define XTIMER_BACKOFF 30
+#define XTIMER_BACKOFF 500
 #endif
 
 /**
@@ -562,6 +597,17 @@ void xtimer_set_timeout_flag(xtimer_t *t, uint32_t timeout);
 
 #endif
 
+
+#ifdef TIMER_64BIT_HW
+	#ifdef XTIMER_WIDTH
+		#if (XTIMER_WIDTH != 64)
+			#error "XTIMER_WIDTH must be 64 bit when 64 bit HW timer is enabled."
+		#endif
+	#else
+		#define XTIMER_WIDTH (64)
+	#endif
+#else
+
 #ifndef XTIMER_WIDTH
 /**
  * @brief xtimer timer width
@@ -572,7 +618,9 @@ void xtimer_set_timeout_flag(xtimer_t *t, uint32_t timeout);
 #define XTIMER_WIDTH (32)
 #endif
 
-#if (XTIMER_WIDTH != 32) || DOXYGEN
+#endif
+
+#if ((XTIMER_WIDTH != 32) && (XTIMER_WIDTH != 64)) || DOXYGEN
 /**
  * @brief xtimer timer mask
  *

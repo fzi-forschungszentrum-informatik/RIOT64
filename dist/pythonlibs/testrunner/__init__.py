@@ -2,6 +2,7 @@
 #               2017 Cenk Gündoğan <cenk.guendogan@haw-hamburg.de>
 #               2016 Kaspar Schleiser <kaspar@schleiser.de>
 #               2014 Martine Lenders <mlenders@inf.fu-berlin.de>
+# Copyright (C) 2019 FZI Forschungszentrum Informatik
 #
 # This file is subject to the terms and conditions of the GNU Lesser
 # General Public License v2.1. See the file LICENSE in the top level

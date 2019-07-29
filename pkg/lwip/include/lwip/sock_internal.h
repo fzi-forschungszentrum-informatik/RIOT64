@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -49,7 +50,7 @@ extern "C" {
  */
 int lwip_sock_create(struct netconn **conn, const struct _sock_tl_ep *local,
                       const struct _sock_tl_ep *remote, int proto,
-                      uint16_t flags, int type);
+                      uint16_t flags, int type, netconn_callback callback);
 uint16_t lwip_sock_bind_addr_to_netif(const ip_addr_t *bind_addr);
 int lwip_sock_get_addr(struct netconn *conn, struct _sock_tl_ep *ep, u8_t local);
 #if defined(MODULE_LWIP_SOCK_UDP) || defined(MODULE_LWIP_SOCK_IP)

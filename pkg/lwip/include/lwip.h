@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Martine Lenders <mlenders@inf.fu-berlin.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -36,6 +37,13 @@ extern "C" {
  * stack and the stack's thread is started.
  */
 void lwip_bootstrap(void);
+
+
+#if defined(MODULE_ROCKETIF) || defined(MODULE_NETDEV_TAP)
+ #if LWIP_IPV4
+void setIPv4Address(uint8_t netif_id, const ip4_addr_t* addr, const ip4_addr_t* netmask, const ip4_addr_t* gw);
+ #endif
+#endif
 
 #ifdef __cplusplus
 }

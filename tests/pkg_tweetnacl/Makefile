@@ -9,7 +9,7 @@ BOARD_INSUFFICIENT_MEMORY := arduino-duemilanove \
                              nucleo-f042k6 \
                              #
 
-TEST_ON_CI_WHITELIST += native
+TEST_ON_CI_WHITELIST += native native64
 
 CFLAGS += -DTHREAD_STACKSIZE_MAIN=\(5*THREAD_STACKSIZE_DEFAULT\)
 

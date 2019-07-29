@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -38,12 +39,12 @@
 static volatile int fired;
 static volatile uint32_t sw_count;
 static volatile uint32_t timeouts[MAX_CHANNELS];
-static volatile unsigned args[MAX_CHANNELS];
+static volatile uintptr_t args[MAX_CHANNELS];
 
 static void cb(void *arg, int chan)
 {
     timeouts[chan] = sw_count;
-    args[chan] = (unsigned)arg + chan;
+    args[chan] = (uintptr_t)arg + chan;
     fired++;
 }
 
@@ -56,11 +57,11 @@ static int test_timer(unsigned num)
     fired = 0;
     for (unsigned i = 0; i < MAX_CHANNELS; i++) {
         timeouts[i] = 0;
-        args[i] = UINT_MAX;
+        args[i] = UINTPTR_MAX;
     }
 
     /* initialize and halt timer */
-    if (timer_init(TIMER_DEV(num), TIMER_SPEED, cb, (void *)(COOKIE * num)) < 0) {
+    if (timer_init(TIMER_DEV(num), TIMER_SPEED, cb, (void *)(uintptr_t)(COOKIE * num)) < 0) {
         printf("TIMER_%u: ERROR on initialization - skipping\n\n", num);
         return 0;
     }

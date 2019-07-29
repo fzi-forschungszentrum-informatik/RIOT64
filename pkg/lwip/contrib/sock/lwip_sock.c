@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -20,11 +21,16 @@
 #include "net/ipv6/addr.h"
 #include "net/sock.h"
 #include "timex.h"
+#include <limits.h>
 
 #include "lwip/err.h"
 #include "lwip/ip.h"
 #include "lwip/netif.h"
 #include "lwip/opt.h"
+
+#include "lwip/api.h"
+#include "lwip/tcp.h"
+
 
 #if !LWIP_IPV4 && !LWIP_IPV6
 #error "lwip_sock needs IPv4 or IPv6 support"
@@ -255,9 +261,9 @@ static int _sock_ep_to_netconn_pars(const struct _sock_tl_ep *local,
     return res;
 }
 
-static int _create(int type, int proto, uint16_t flags, struct netconn **out)
+static int _create(int type, int proto, uint16_t flags, struct netconn **out, netconn_callback callback)
 {
-    if ((*out = netconn_new_with_proto_and_callback(type, proto, NULL)) == NULL) {
+    if ((*out = netconn_new_with_proto_and_callback(type, proto, callback)) == NULL) {
         return -ENOMEM;
     }
 #if LWIP_IPV4 && LWIP_IPV6
@@ -279,7 +285,7 @@ static int _create(int type, int proto, uint16_t flags, struct netconn **out)
 
 int lwip_sock_create(struct netconn **conn, const struct _sock_tl_ep *local,
                      const struct _sock_tl_ep *remote, int proto,
-                     uint16_t flags, int type)
+                     uint16_t flags, int type, netconn_callback callback)
 {
     assert(conn != NULL);
 #if LWIP_IPV6
@@ -304,7 +310,7 @@ int lwip_sock_create(struct netconn **conn, const struct _sock_tl_ep *local,
     /* if local or remote parameters are given */
     else if ((local != NULL) || (remote != NULL)) {
         int res = 0;
-        if ((res = _create(type, proto, flags, conn)) < 0) {
+        if ((res = _create(type, proto, flags, conn, callback)) < 0) {
             return res;
         }
         /* if parameters (local->netif, remote->netif, local->addr or
@@ -489,9 +495,11 @@ ssize_t lwip_sock_send(struct netconn **conn, const void *data, size_t len,
     ip_addr_t remote_addr;
     struct netconn *tmp;
     struct netbuf *buf;
-    int res;
+    ssize_t res;
     err_t err;
     u16_t remote_port = 0;
+
+    assert(len <= SSIZE_MAX);
 
 #if LWIP_IPV6
     assert(!(type & NETCONN_TYPE_IPV6));
@@ -514,7 +522,7 @@ ssize_t lwip_sock_send(struct netconn **conn, const void *data, size_t len,
         return -ENOMEM;
     }
     if (((conn == NULL) || (*conn == NULL)) && (remote != NULL)) {
-        if ((res = _create(type, proto, 0, &tmp)) < 0) {
+        if ((res = _create(type, proto, 0, &tmp, NULL)) < 0) {
             netbuf_delete(buf);
             return res;
         }

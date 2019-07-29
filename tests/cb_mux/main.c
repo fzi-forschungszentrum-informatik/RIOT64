@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Acutam Automation, LLC
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -40,7 +41,7 @@ void mux_iter(cb_mux_t *entry, void *arg)
 /* Test callback */
 void cb(void *arg)
 {
-    printf("Callback %u executed\n", (uint8_t)(uintptr_t)arg);
+    printf("Callback %u executed\n", *(cb_mux_cbid_t*)arg);
 }
 
 int main(void)
@@ -53,7 +54,7 @@ int main(void)
 
     for (num = 0; num < 5; num++) {
         entries[num].cb = cb;
-        entries[num].arg = (void *)num;
+        entries[num].arg = (void *) &num;
         entries[num].cbid = num;
     }
 
@@ -97,6 +98,7 @@ int main(void)
         puts("[FAILED] Unexpected NULL pointer");
         return 1;
     }
+    num = entry->cbid;
     entry->cb(entry->arg);
 
     puts("Test execution of CB with highest ID (3)");
@@ -106,10 +108,15 @@ int main(void)
         puts("[FAILED] Unexpected NULL pointer");
         return 1;
     }
+    /* cppcheck-suppress redundantAssignment
+    * (reason: value was read indirectly via pointer in cb) */
+    num = entry->cbid;
     entry->cb(entry->arg);
 
     puts("Re-adding list entries (0, 2, 4) by finding next free ID");
 
+    /* cppcheck-suppress redundantAssignment
+    * (reason: value was read indirectly via pointer in cb) */
     num = cb_mux_find_free_id(cb_mux_head);
     while (num < 5) {
         cb_mux_add(&cb_mux_head, &(entries[num]));

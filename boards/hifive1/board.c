@@ -111,6 +111,10 @@ void board_init_clock(void)
     SPI0_REG(SPI_REG_SCKDIV) = SCKDIV;
 }
 
+
+#define OCD_MAGIC_NUMBER_INIT 0xC001C0DE
+__attribute__((used)) __attribute__((section (".openocd"))) volatile uint32_t ocd_riot_magic_number = 1;
+
 void board_init(void)
 {
     /* Initialize CPU and clocks */
@@ -135,4 +139,5 @@ void board_init(void)
 
     /* Initialize newlib-nano library stubs */
     nanostubs_init();
+    ocd_riot_magic_number = OCD_MAGIC_NUMBER_INIT;
 }

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Eistec AB
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -54,6 +55,7 @@
 #define VFS_H
 
 #include <stdint.h>
+#include <limits.h>
 /* The stdatomic.h in GCC gives compilation errors with C++
  * see: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60932
  */
@@ -80,6 +82,15 @@ extern "C" {
  * empty definition instead: */
 /* #define restrict */
 #endif
+
+#if UINTPTR_MAX > UINT32_MAX
+/**
+ * @brief We need larger buffers on 64 bit systems.
+ */
+#define VFS_LARGE_POINTERS
+#endif
+
+
 
 #ifndef VFS_MAX_OPEN_FILES
 /**
@@ -116,7 +127,11 @@ extern "C" {
  * @attention Put the check in the public header file (.h), do not put the check in the
  * implementation (.c) file.
  */
+#ifdef VFS_LARGE_POINTERS
+#define VFS_DIR_BUFFER_SIZE (24)
+#else
 #define VFS_DIR_BUFFER_SIZE (12)
+#endif
 #endif
 
 #ifndef VFS_FILE_BUFFER_SIZE

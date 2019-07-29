@@ -1,0 +1,17 @@
+# export the CPU family so we can differentiate between them in the code
+FAM = $(shell echo $(CPU_FAM) | tr 'a-z-' 'A-Z_')
+export CFLAGS += -DCPU_FAM_$(FAM)
+
+# use common periph functions
+USEMODULE += periph_common
+
+USEMODULE += riscv_plic
+USEMODULE += sifive_common_periph
+#USEMODULE += sifive_common_devices
+
+# link common cpu code
+USEMODULE += cpu_common
+
+# export the common include directory
+export INCLUDES += -I$(RIOTCPU)/sifive_common/include
+

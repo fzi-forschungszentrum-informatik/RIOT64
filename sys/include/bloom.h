@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -134,7 +135,7 @@ extern "C" {
 /**
  * @brief hash function to use in thee filter
  */
-typedef uint32_t (*hashfp_t)(const uint8_t *, int len);
+typedef uint32_t (*hashfp_t)(const uint8_t *, size_t len);
 
 /**
  * @brief bloom_t bloom filter object

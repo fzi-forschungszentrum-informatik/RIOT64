@@ -1,0 +1,11 @@
+export CPU = rocketchip64
+export CPU_MODEL = rocketchip64
+export LINKER_SCRIPT=rv64_generic.ld
+
+# Uses UART0 for stdio input/output (comment out to disable)
+USEMODULE += stdio_uart
+
+all-debug: export CFLAGS += -g
+
+all: # do not override first target
+all-debug: all

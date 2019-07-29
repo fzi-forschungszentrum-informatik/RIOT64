@@ -62,6 +62,10 @@ ifneq (,$(filter sht1x,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/sht1x/include
 endif
 
+ifneq (,$(filter shtc3,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/shtc3/include
+endif
+
 ifneq (,$(filter ds1307,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/ds1307/include
 endif
@@ -300,4 +304,16 @@ endif
 
 ifneq (,$(filter sds011,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/sds011/include
+endif
+
+ifneq (,$(filter rocketif,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/rocketif/include
+endif
+
+ifneq (,$(filter rocketDMX,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/rocketDMX/include
+endif
+
+ifneq (,$(filter hotsnot_conf,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/hotsnot_conf/include
 endif

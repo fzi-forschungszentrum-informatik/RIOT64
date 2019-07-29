@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Kaspar Schleiser <kaspar@schleiser.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -28,10 +29,12 @@
 int main(void)
 {
     xtimer_ticks32_t last_wakeup = xtimer_now();
+    xtimer_ticks64_t now64;
 
     while(1) {
         xtimer_periodic_wakeup(&last_wakeup, INTERVAL);
-        printf("slept until %" PRIu32 "\n", xtimer_usec_from_ticks(xtimer_now()));
+        now64 = xtimer_now64();
+        printf("slept until %" PRIu64 "\n", xtimer_usec_from_ticks64(now64));
     }
 
     return 0;

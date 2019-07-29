@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017 Michel Rottleuthner <michel.rottleuthner@haw-hamburg.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -18,6 +19,8 @@
  *
  * @}
  */
+#include <inttypes.h>
+
 #include "fatfs/diskio.h"       /**< FatFs lower layer API */
 #include "fatfs_diskio_mtd.h"
 #include "fatfs/ffconf.h"
@@ -29,6 +32,8 @@
 #if FATFS_FFCONF_OPT_FS_NORTC == 0
 #include "periph/rtc.h"
 #endif
+
+
 
 /* mtd devices for use by FatFs should be provided by the application */
 extern mtd_dev_t *fatfs_mtd_devs[FF_VOLUMES];
@@ -44,7 +49,7 @@ extern mtd_dev_t *fatfs_mtd_devs[FF_VOLUMES];
  */
 DSTATUS disk_status(BYTE pdrv)
 {
-    DEBUG("disk_status %d\n", pdrv);
+    DEBUG("disk_status %" PRIu8 "\n", pdrv);
     if (pdrv >= FF_VOLUMES) {
         return STA_NODISK;
     } else if (fatfs_mtd_devs[pdrv]->driver == NULL){
@@ -65,7 +70,7 @@ DSTATUS disk_status(BYTE pdrv)
  */
 DSTATUS disk_initialize(BYTE pdrv)
 {
-    DEBUG("disk_initialize %d\n", pdrv);
+    DEBUG("disk_initialize %" PRIu8 "\n", pdrv);
     if (pdrv >= FF_VOLUMES) {
         return STA_NODISK;
     } else if (fatfs_mtd_devs[pdrv]->driver == NULL){
@@ -90,7 +95,7 @@ DSTATUS disk_initialize(BYTE pdrv)
  */
 DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 {
-    DEBUG("disk_read: %d, %lu, %d\n", pdrv, sector, count);
+    DEBUG("disk_read: %" PRIu8 ", %" PRIu32 ", %" PRI_FFS_UINT "\n", pdrv, sector, count);
     if ((pdrv >= FF_VOLUMES) || (fatfs_mtd_devs[pdrv]->driver == NULL)) {
         return RES_PARERR;
     }
@@ -121,7 +126,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
  */
 DRESULT disk_write(BYTE pdrv, const BYTE *buff, DWORD sector, UINT count)
 {
-    DEBUG("disk_write: %d, %lu, %d\n", pdrv, sector, count);
+    DEBUG("disk_write: %" PRIu8 ", %" PRIu32 ", %" PRI_FFS_UINT "\n", pdrv, sector, count);
     if ((pdrv >= FF_VOLUMES) || (fatfs_mtd_devs[pdrv]->driver == NULL)) {
         return RES_PARERR;
     }

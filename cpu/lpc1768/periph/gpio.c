@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017 Bas Stottelaar <basstottelaar@gmail.com>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser General
  * Public License v2.1. See the file LICENSE in the top level directory for more
@@ -231,7 +232,7 @@ void isr_eint3(void)
 
     /* invoke all handlers */
     for (int i = 0; i < NUMOF_IRQS; i++) {
-        if (status & (1 << i)) {
+        if (status & (1u << i)) {
             isr_ctx[i].cb(isr_ctx[i].arg);
 
             LPC_GPIOINT->IO0IntClr |= (1 << i);

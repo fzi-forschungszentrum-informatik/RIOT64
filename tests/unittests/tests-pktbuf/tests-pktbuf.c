@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2014 Martine Lenders <mail@martine-lenders.eu>
  *               2015 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -248,14 +249,17 @@ static void test_pktbuf_add__packed_struct(void)
 #ifndef MODULE_GNRC_PKTBUF_MALLOC   /* alignment-handling left to malloc, so no certainty here */
 static void test_pktbuf_add__unaligned_in_aligned_hole(void)
 {
-    gnrc_pktsnip_t *pkt1 = gnrc_pktbuf_add(NULL, NULL, 8, GNRC_NETTYPE_TEST);
-    gnrc_pktsnip_t *pkt2 = gnrc_pktbuf_add(NULL, NULL, 8, GNRC_NETTYPE_TEST);
-    gnrc_pktsnip_t *pkt3 = gnrc_pktbuf_add(NULL, NULL, 8, GNRC_NETTYPE_TEST);
+
+	const size_t alingment = 2 * sizeof(void*);
+
+    gnrc_pktsnip_t *pkt1 = gnrc_pktbuf_add(NULL, NULL, alingment, GNRC_NETTYPE_TEST);
+    gnrc_pktsnip_t *pkt2 = gnrc_pktbuf_add(NULL, NULL, alingment, GNRC_NETTYPE_TEST);
+    gnrc_pktsnip_t *pkt3 = gnrc_pktbuf_add(NULL, NULL, alingment, GNRC_NETTYPE_TEST);
     gnrc_pktsnip_t *pkt4;
     void *tmp_data2 = pkt2->data;
 
     gnrc_pktbuf_release(pkt2);
-    pkt4 = gnrc_pktbuf_add(NULL, TEST_STRING12, 9, GNRC_NETTYPE_TEST);
+    pkt4 = gnrc_pktbuf_add(NULL, TEST_STRING12, alingment + 1, GNRC_NETTYPE_TEST);
 
     TEST_ASSERT(tmp_data2 != pkt4->data);
 
@@ -818,7 +822,7 @@ static void test_pktbuf_reverse_snips__too_full(void)
 {
     gnrc_pktsnip_t *pkt, *pkt_next, *pkt_huge;
     const size_t pkt_huge_size = GNRC_PKTBUF_SIZE - (3 * 8) -
-                                 (3 * sizeof(gnrc_pktsnip_t)) - 4;
+                                 (3 * sizeof(gnrc_pktsnip_t)) - sizeof(void*);
 
     pkt_next = gnrc_pktbuf_add(NULL, TEST_STRING8, 8, GNRC_NETTYPE_TEST);
     TEST_ASSERT_NOT_NULL(pkt_next);

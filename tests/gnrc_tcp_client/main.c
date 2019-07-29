@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015-2017 Simon Brummer
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -8,6 +9,8 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <inttypes.h>
+
 #include "thread.h"
 #include "net/af.h"
 #include "net/gnrc/ipv6.h"
@@ -66,7 +69,7 @@ int main(void)
     printf("CONNS=%d, NBYTE=%d, CYCLES=%d\n\n", CONNS, NBYTE, CYCLES);
 
     /* Start connection handling threads */
-    for (int i = 0; i < CONNS; i += 1) {
+    for (uintptr_t i = 0; i < CONNS; i += 1) {
         thread_create((char *) stacks[i], sizeof(stacks[i]), THREAD_PRIORITY_MAIN, 0, cli_thread,
                       (void *) i, NULL);
     }
@@ -76,7 +79,7 @@ int main(void)
 void *cli_thread(void *arg)
 {
     /* Test program variables */
-    int tid = (int) arg;
+    int tid = (int)(uintptr_t)arg;
     uint32_t cycles = 0;
     uint32_t cycles_ok = 0;
     uint32_t failed_payload_verifications = 0;

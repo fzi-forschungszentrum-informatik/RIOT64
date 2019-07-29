@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Acutam Automation, LLC
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik 
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -41,7 +42,7 @@ cb_mux_t *cb_mux_find_cbid(cb_mux_t *head, cb_mux_cbid_t cbid_val)
 
 cb_mux_t *cb_mux_find_low(cb_mux_t *head)
 {
-    cb_mux_t *entry;
+    cb_mux_t *entry = NULL;
     cb_mux_t *entry_low = NULL;
     cb_mux_cbid_t id = (cb_mux_cbid_t)(-1);
 
@@ -60,7 +61,7 @@ cb_mux_t *cb_mux_find_low(cb_mux_t *head)
 
 cb_mux_t *cb_mux_find_high(cb_mux_t *head)
 {
-    cb_mux_t *entry;
+    cb_mux_t *entry = NULL;
     cb_mux_t *entry_high = NULL;
     cb_mux_cbid_t id = 0;
 
@@ -81,7 +82,7 @@ cb_mux_cbid_t cb_mux_find_free_id(cb_mux_t *head)
 {
     uint32_t free;
     cb_mux_cbid_t block;
-    cb_mux_t *entry;
+    cb_mux_t *entry = NULL;
     uint8_t num;
 
     /* Search for free IDs in blocks of 32 IDs */
@@ -105,7 +106,7 @@ cb_mux_cbid_t cb_mux_find_free_id(cb_mux_t *head)
 
     /* Find which ID in block was free */
     for (num = 0; num < 32; num++) {
-        if (~free & (1 << num)) {
+        if (~free & (1u << num)) {
             return block | num;
         }
     }
@@ -116,7 +117,7 @@ cb_mux_cbid_t cb_mux_find_free_id(cb_mux_t *head)
 
 void cb_mux_iter(cb_mux_t *head, cb_mux_iter_t func, void *arg)
 {
-    cb_mux_t *entry;
+    cb_mux_t *entry = NULL;
 
     LL_FOREACH(head, entry) {
         func(entry, arg);

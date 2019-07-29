@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Kaspar Schleiser <kaspar@schleiser.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -24,17 +25,19 @@
 #include <stdio.h>
 #include <string.h>
 
-void test_func(void)
+void __attribute__ ((optimize("0"))) test_func(void)
 {
     char buf[16];
 
     /* clang will detect the buffer overflow
      * and throw an error if we use `buf` directly */
-    void *buffer_to_confuse_compiler = buf;
+    char *buffer_to_confuse_compiler = buf;
 
     /* cppcheck-suppress bufferAccessOutOfBounds
      * (reason: deliberately overflowing stack) */
-    memset(buffer_to_confuse_compiler, 0, 32);
+    for (unsigned int i = 0; i < 32; ++i) {
+        *buffer_to_confuse_compiler++ = 0x00;
+    }
 }
 
 int main(void)

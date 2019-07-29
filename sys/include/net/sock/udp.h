@@ -3,6 +3,7 @@
  *                    Freie Universität Berlin
  *                    HAW Hamburg
  *                    Kaspar Schleiser <kaspar@schleiser.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -333,6 +334,20 @@ typedef struct sock_udp sock_udp_t;
  */
 int sock_udp_create(sock_udp_t *sock, const sock_udp_ep_t *local,
                     const sock_udp_ep_t *remote, uint16_t flags);
+/**
+ * @brief   Same as  [sock_udp_create](@ref sock_udp_create) but with callback
+
+ * @param[out] sock     See @ref sock_udp_send().
+ * @param[in] local     See @ref sock_udp_send().
+ * @param[in] remote    See @ref sock_udp_send().
+ * @param[in] flags     See @ref sock_udp_send().
+ * @param[in] callback  Callback function. See also @ref sock_udp_send().
+ *                      May be 0.
+ *
+ * @return  Same as @ref sock_udp_send()
+ */
+int sock_udp_create_callback(sock_udp_t *sock, const sock_udp_ep_t *local,
+                    const sock_udp_ep_t *remote, uint16_t flags, callback_t callback);
 
 /**
  * @brief   Closes a UDP sock object

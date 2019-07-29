@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2016 TriaGnoSys GmbH
  *               2015 Martine Lenders <mlenders@inf.fu-berlin.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -90,8 +91,8 @@ void sema_create(sema_t *sema, unsigned int value);
  *      </a>
  *
  * Destroying a semaphore upon which other threads are currently blocked
- * will wake the other threads causing the @ref sema_wait (or
- * @ref sema_wait_timed) to return error (-ECANCELED).
+ * will wake the other threads causing the sema_wait() (or
+ * sema_wait_timed()) to return error (-ECANCELED).
  *
  * @param[in] sema  The semaphore to destroy.
  */

@@ -2,6 +2,7 @@
  * Print thread information.
  *
  * Copyright (C) 2013, INRIA.
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik 
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -12,6 +13,7 @@
  * @file
  * @brief   UNIX like ps command
  * @author  Kaspar Schleiser <kaspar@schleiser.de>
+ * @author      Frederik Haxel <haxel@fzi.de>
  * @}
  */
 
@@ -61,8 +63,11 @@ void ps(void)
 #ifdef DEVELHELP
            "| stack  ( used) | base addr  | current     "
 #endif
+#ifdef USE_LAZY_FPU_CONTEXT
+           "| fpu "
+#endif
 #ifdef MODULE_SCHEDSTATISTICS
-           "| runtime  | switches"
+           "| runtime | switches"
 #endif
            "\n",
 #ifdef DEVELHELP
@@ -120,6 +125,9 @@ void ps(void)
 #ifdef DEVELHELP
                    " | %6i (%5i) | %10p | %10p "
 #endif
+#ifdef USE_LAZY_FPU_CONTEXT
+           " | %s"
+#endif
 #ifdef MODULE_SCHEDSTATISTICS
                    " | %2d.%03d%% |  %8u"
 #endif
@@ -131,6 +139,9 @@ void ps(void)
                    sname, queued, p->priority
 #ifdef DEVELHELP
                    , p->stack_size, stacksz, (void *)p->stack_start, (void *)p->sp
+#endif
+#ifdef USE_LAZY_FPU_CONTEXT
+				   , (p->fpucontext == NULL ? "NO " : "YES")
 #endif
 #ifdef MODULE_SCHEDSTATISTICS
                    , runtime_major, runtime_minor, switches

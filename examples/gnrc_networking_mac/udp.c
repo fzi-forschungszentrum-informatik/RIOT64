@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -14,6 +15,7 @@
  * @brief       Demonstrating the sending and receiving of UDP data
  *
  * @author      Hauke Petersen <hauke.petersen@fu-berlin.de>
+ * @author      Frederik Haxel <haxel@fzi.de>
  *
  * @}
  */
@@ -53,7 +55,7 @@ static void send(char *addr_str, char *port_str, char *data, unsigned int num,
         return;
     }
     /* parse port */
-    port = (uint16_t)atoi(port_str);
+    port = atoi(port_str);
     if (port == 0) {
         puts("Error: unable to parse destination port");
         return;
@@ -116,7 +118,7 @@ static void start_server(char *port_str)
         return;
     }
     /* parse port */
-    port = (uint16_t)atoi(port_str);
+    port = atoi(port_str);
     if (port == 0) {
         puts("Error: invalid port specified");
         return;
@@ -157,10 +159,10 @@ int udp_cmd(int argc, char **argv)
             return 1;
         }
         if (argc > 5) {
-            num = (uint32_t)atoi(argv[5]);
+            num = atoi(argv[5]);
         }
         if (argc > 6) {
-            delay = (uint32_t)atoi(argv[6]);
+            delay = atoi(argv[6]);
         }
         send(argv[2], argv[3], argv[4], num, delay);
     }

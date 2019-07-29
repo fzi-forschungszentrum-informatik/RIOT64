@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -100,7 +101,7 @@ void thread_yield(void)
 {
     unsigned old_state = irq_disable();
     thread_t *me = (thread_t *)sched_active_thread;
-    if (me->status >= STATUS_ON_RUNQUEUE) {
+    if (me != NULL && me->status >= STATUS_ON_RUNQUEUE) {
         clist_lpoprpush(&sched_runqueues[me->priority]);
     }
     irq_restore(old_state);
@@ -143,8 +144,10 @@ uintptr_t thread_measure_stack_free(char *stack)
 }
 #endif
 
-kernel_pid_t thread_create(char *stack, int stacksize, char priority, int flags, thread_task_func_t function, void *arg, const char *name)
-{
+
+struct fpu_context;
+
+kernel_pid_t thread_create_with_fp(char *stack, int stacksize, struct fpu_context *fpucontext, char priority, int flags, thread_task_func_t function, void *arg, const char *name) {
     if (priority >= SCHED_PRIO_LEVELS) {
         return -EINVAL;
     }
@@ -235,6 +238,14 @@ kernel_pid_t thread_create(char *stack, int stacksize, char priority, int flags,
     thread->msg_array = NULL;
 #endif
 
+#if defined(USE_LAZY_FPU_CONTEXT)
+    // fpucontext can be NULL
+    thread_fpu_context_init(fpucontext, pid);
+    thread->fpucontext = fpucontext;
+#else
+    (void) fpucontext;
+#endif
+
     sched_num_threads++;
 
     DEBUG("Created thread %s. PID: %" PRIkernel_pid ". Priority: %u.\n", name, thread->pid, priority);
@@ -255,4 +266,9 @@ kernel_pid_t thread_create(char *stack, int stacksize, char priority, int flags,
     irq_restore(state);
 
     return pid;
+}
+
+kernel_pid_t thread_create(char *stack, int stacksize, char priority, int flags, thread_task_func_t function, void *arg, const char *name)
+{
+	return thread_create_with_fp(stack, stacksize, NULL, priority, flags, function, arg, name);
 }

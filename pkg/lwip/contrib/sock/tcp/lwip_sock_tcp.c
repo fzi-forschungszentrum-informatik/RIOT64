@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -34,8 +35,15 @@ static inline void _tcp_sock_init(sock_tcp_t *sock, struct netconn *conn,
     mutex_unlock(&sock->mutex);
 }
 
+
 int sock_tcp_connect(sock_tcp_t *sock, const sock_tcp_ep_t *remote,
                      uint16_t local_port, uint16_t flags)
+{
+	return sock_tcp_connect_callback(sock, remote, local_port, flags, NULL);
+}
+
+int sock_tcp_connect_callback(sock_tcp_t *sock, const sock_tcp_ep_t *remote,
+                     uint16_t local_port, uint16_t flags, callback_t callback)
 {
     assert(sock != NULL);
     assert((remote != NULL) && (remote->port != 0));
@@ -47,15 +55,22 @@ int sock_tcp_connect(sock_tcp_t *sock, const sock_tcp_ep_t *remote,
                                  .port = local_port };
 
     if ((res = lwip_sock_create(&tmp, &local, (struct _sock_tl_ep *)remote, 0,
-                                flags, NETCONN_TCP)) == 0) {
+                                flags, NETCONN_TCP, (netconn_callback) callback)) == 0) {
         _tcp_sock_init(sock, tmp, NULL);
     }
     return res;
 }
 
 int sock_tcp_listen(sock_tcp_queue_t *queue, const sock_tcp_ep_t *local,
+        sock_tcp_t *queue_array, unsigned queue_len,
+        uint16_t flags)
+{
+	return sock_tcp_listen_callback(queue, local, queue_array, queue_len, flags, NULL);
+}
+
+int sock_tcp_listen_callback(sock_tcp_queue_t *queue, const sock_tcp_ep_t *local,
                     sock_tcp_t *queue_array, unsigned queue_len,
-                    uint16_t flags)
+                    uint16_t flags, callback_t callback)
 {
     assert(queue != NULL);
     assert((local != NULL) && (local->port != 0));
@@ -68,7 +83,7 @@ int sock_tcp_listen(sock_tcp_queue_t *queue, const sock_tcp_ep_t *local,
         return -EFAULT;
     }
     if ((res = lwip_sock_create(&tmp, (struct _sock_tl_ep *)local, NULL, 0,
-                                flags, NETCONN_TCP)) < 0) {
+                                flags, NETCONN_TCP, (netconn_callback) callback)) < 0) {
         return res;
     }
     assert(tmp != NULL); /* just in case lwIP is trolling */
@@ -262,14 +277,14 @@ ssize_t sock_tcp_read(sock_tcp_t *sock, void *data, size_t max_len,
     if (sock->conn == NULL) {
         return -ENOTCONN;
     }
-    if (timeout == 0) {
-        if (!mutex_trylock(&sock->mutex)) {
-            return -EAGAIN;
-        }
-    }
-    else {
+//    if (timeout == 0) {
+//        if (!mutex_trylock(&sock->mutex)) {
+//            return -EAGAIN;
+//        }
+//    }
+//    else {
         mutex_lock(&sock->mutex);
-    }
+//    }
 #if LWIP_SO_RCVTIMEO
     if ((timeout != 0) && (timeout != SOCK_NO_TIMEOUT)) {
         netconn_set_recvtimeout(sock->conn, timeout / US_PER_MS);

@@ -4,7 +4,7 @@ include ../Makefile.tests_common
 
 USEMODULE += trace
 
-BOARD_WHITELIST := native
+BOARD_WHITELIST := native native64
 
 TEST_ON_CI_WHITELIST += all
 

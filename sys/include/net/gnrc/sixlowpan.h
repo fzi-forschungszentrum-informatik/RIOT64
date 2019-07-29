@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Martine Lenders <mlenders@inf.fu-berlin.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -65,7 +66,7 @@
  *
  * Depending on which other modules are included the behavior can be a little different:
  *
- *  1.  If @ref net_gnrc_sixlowpan_frag is included and @ref sixlowpan_frag_is() is true for the
+ *  1.  If @ref net_gnrc_sixlowpan_frag is included and sixlowpan_frag_is() is true for the
  *      packet, the fragmentation header will be removed and its remaining data will be added to
  *      the reassembly buffer (using @ref rbuf_add()) in accordance to the fragmentation header.
  *      The packet containing the fragment will be discarded. When the fragmented datagram is
@@ -75,19 +76,19 @@
  *      reassembly times out or if fragments overlap the datagram will be silently discarded.
  *  2.  If @ref net_gnrc_sixlowpan_iphc is included the packet will not be send to the subscribers
  *      to @ref GNRC_NETTYPE_IPV6 with demultiplex context @ref GNRC_NETREG_DEMUX_CTX_ALL
- *      immediately, but it will be checked first if @ref sixlowpan_iphc_is() is true for its
+ *      immediately, but it will be checked first if sixlowpan_sixlowpan_iphc_is() is true for its
  *      payload. If false it will be send to the @ref GNRC_NETTYPE_IPV6 subscribers as usual. If
  *      true the IPHC dispatch will be decompressed to a full IPv6 header first. The IPHC dispatch
  *      will be replaced by the uncompressed IPHC header, any NHC dispatch will be replaced by their
  *      respective uncompressed header. The resulting packet will then be issued to the
  *      @ref GNRC_NETTYPE_IPV6 subscribers as usual.
  *  3.  If both @ref net_gnrc_sixlowpan_frag and @ref net_gnrc_sixlowpan_iphc are included the
- *      and @ref sixlowpan_frag_is() is true for the packet, the fragmented datagram will be
+ *      and  sixlowpan_frag_is() is true for the packet, the fragmented datagram will be
  *      reassembled as described in (1). If for the remainder (after removal of the fragment
- *      header) of the first fragment @ref sixlowpan_iphc_is() is true, it will be decompressed as
+ *      header) of the first fragment sixlowpan_iphc_is() is true, it will be decompressed as
  *      described in (2), with the exception that the packet will only be send to all receivers of
  *      @ref GNRC_NETTYPE_IPV6 as soon as the datagram was completely reassembled and not after
- *      directly after decompression. If @ref sixlowpan_iphc_is() is false, reassembly is handled
+ *      directly after decompression. If sixlowpan_iphc_is() is false, reassembly is handled
  *      completely as described in (1). It is assumed that a fragment can fit a full compression
  *      header (including inlined fields and possibly NHC/GHC headers) as specified in
  *      [RFC 6282, section 2](https://tools.ietf.org/html/rfc6282#section-2).

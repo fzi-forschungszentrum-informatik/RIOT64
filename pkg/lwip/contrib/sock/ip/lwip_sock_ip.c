@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -28,9 +29,14 @@
 #include "lwip/sys.h"
 #include "lwip/sock_internal.h"
 
-
 int sock_ip_create(sock_ip_t *sock, const sock_ip_ep_t *local,
                    const sock_ip_ep_t *remote, uint8_t proto, uint16_t flags)
+{
+	return sock_ip_create_callback(sock, local, remote, proto, flags, NULL);
+}
+
+int sock_ip_create_callback(sock_ip_t *sock, const sock_ip_ep_t *local,
+                   const sock_ip_ep_t *remote, uint8_t proto, uint16_t flags, callback_t callback)
 {
     assert(sock != NULL);
 
@@ -41,7 +47,7 @@ int sock_ip_create(sock_ip_t *sock, const sock_ip_ep_t *local,
      * touched for RAW */
     if ((res = lwip_sock_create(&tmp, (struct _sock_tl_ep *)local,
                                 (struct _sock_tl_ep *)remote, proto, flags,
-                                NETCONN_RAW)) == 0) {
+                                NETCONN_RAW, (netconn_callback) callback)) == 0) {
         sock->conn = tmp;
     }
     return res;

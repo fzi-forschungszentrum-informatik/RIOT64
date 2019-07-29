@@ -143,6 +143,7 @@ SECTIONS
     . = ALIGN(8);
     PROVIDE( __global_pointer$ = . + 0x800 );
     *(.sdata .sdata.*)
+    KEEP(*(.openocd))
     *(.gnu.linkonce.s.*)
     . = ALIGN(8);
     *(.srodata.cst16)

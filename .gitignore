@@ -21,6 +21,8 @@ cachegrind.out*
 .cproject
 .settings
 .idea
+.pydevproject
+
 # KDevelop4 project files
 .kdev4
 *.kdev4
@@ -55,6 +57,7 @@ Makefile.local
 
 # Ignore download cache
 .dlcache
+.gitcache
 
 # scan-build artifacts
 scan-build/

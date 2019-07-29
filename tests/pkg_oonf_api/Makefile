@@ -1,6 +1,6 @@
 include ../Makefile.tests_common
 
-BOARD_WHITELIST := native
+BOARD_WHITELIST := native native64
 
 USEMODULE += gnrc_ipv6
 USEMODULE += gnrc_sock_udp

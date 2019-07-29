@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015 Kaspar Schleiser <kaspar@schleiser.de>
  * Copyright (C) 2016 Eistec AB
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -15,6 +16,7 @@
  * @brief xtimer convenience functionality
  * @author Kaspar Schleiser <kaspar@schleiser.de>
  * @author Joakim Nohlgård <joakim.nohlgard@eistec.se>
+ * @author      Leon Hielscher <hielscher@fzi.de>
  * @}
  */
 
@@ -77,6 +79,15 @@ void _xtimer_periodic_wakeup(uint32_t *last_wakeup, uint32_t period) {
     timer.callback = _callback_unlock_mutex;
     timer.arg = (void*) &mutex;
 
+
+#ifdef TIMER_64BIT_HW
+    uint64_t target = (uint64_t)(*last_wakeup) + (uint64_t)period;
+    uint64_t now = _xtimer_now64();
+    target += (now & 0xFFFFFFFF00000000L);
+    if (target < now) {
+    	goto out;
+    }
+#else
     uint32_t target = (*last_wakeup) + period;
     uint32_t now = _xtimer_now();
     /* make sure we're not setting a value in the past */
@@ -94,6 +105,7 @@ void _xtimer_periodic_wakeup(uint32_t *last_wakeup, uint32_t period) {
             goto out;
         }
     }
+#endif
 
     /*
      * For large offsets, set an absolute target time.
@@ -112,6 +124,34 @@ void _xtimer_periodic_wakeup(uint32_t *last_wakeup, uint32_t period) {
      *
      * tl;dr Don't return too early!
      */
+
+#ifdef TIMER_64BIT_HW
+
+    uint64_t offset = target - now;
+    DEBUG("xps, now: %9" PRIu64 ", tgt: %9" PRIu64 ", off: %9" PRIu64 "\n", now, target, offset);
+    if (offset < XTIMER_PERIODIC_SPIN) {
+        _xtimer_spin64(offset);
+    }
+    else {
+        if (offset < XTIMER_PERIODIC_RELATIVE) {
+            /* NB: This will overshoot the target by the amount of time it took
+             * to get here from the beginning of xtimer_periodic_wakeup()
+             *
+             * Since interrupts are normally enabled inside this function, this time may
+             * be undeterministic. */
+            target = _xtimer_now64() + offset;
+        }
+        mutex_lock(&mutex);
+        DEBUG("xps, abs: %" PRIu64 "\n", target);
+        _xtimer_set_absolute64(&timer, target);
+        mutex_lock(&mutex);
+    }
+out:
+    *last_wakeup = (uint32_t)target;
+
+#else
+
+
     uint32_t offset = target - now;
     DEBUG("xps, now: %9" PRIu32 ", tgt: %9" PRIu32 ", off: %9" PRIu32 "\n", now, target, offset);
     if (offset < XTIMER_PERIODIC_SPIN) {
@@ -133,6 +173,7 @@ void _xtimer_periodic_wakeup(uint32_t *last_wakeup, uint32_t period) {
     }
 out:
     *last_wakeup = target;
+#endif
 }
 
 static void _callback_msg(void* arg)

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Gunar Schorcht
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -688,7 +689,7 @@ static /* IRAM */ int _i2c_read_byte(_i2c_bus_t* bus, uint8_t *byte, bool ack)
         if (res != 0) {
             return res;
         }
-        *byte = (*byte << 1) | (bit ? 1 : 0);
+        *byte = (*byte << 1) | (bit & 0x1);
     }
 
     /* write acknowledgement flag */

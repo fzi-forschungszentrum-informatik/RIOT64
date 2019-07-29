@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -61,7 +62,11 @@ int main(void)
 
     pthread_t children[NUM_CHILDREN];
     for (int i = 0; i < NUM_CHILDREN; ++i) {
-        pthread_create(&children[i], NULL, run, (void *) (intptr_t) i);
+        int error = pthread_create(&children[i], NULL, run, (void *) (intptr_t) i);
+        if (error < 0) {
+			puts("FAILURE: Thread creation failed.");
+			return 0;
+		}
     }
 
     for (int i = 0; i < NUM_CHILDREN; ++i) {

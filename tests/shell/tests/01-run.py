@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # Copyright (C) 2017 Alexandre Abadie <alexandre.abadie@inria.fr>
+# Copyright (C) 2019 FZI Forschungszentrum Informatik
 #
 # This file is subject to the terms and conditions of the GNU Lesser
 # General Public License v2.1. See the file LICENSE in the top level
@@ -28,8 +29,8 @@ EXPECTED_PS = (
 )
 
 CMDS = {
-    'start_test': ('[TEST_START]'),
-    'end_test': ('[TEST_END]'),
+    'start_test': ('TEST_START'),
+    'end_test': ('TEST_END'),
     '\n': ('>'),
     '123456789012345678901234567890123456789012345678901234567890':
         ('shell: command not found: '
@@ -37,15 +38,14 @@ CMDS = {
     'unknown_command': ('shell: command not found: unknown_command'),
     'help': EXPECTED_HELP,
     'echo a string': ('\"echo\"\"a\"\"string\"'),
-    'ps': EXPECTED_PS,
-    'reboot': ('test_shell.')
+    'ps': EXPECTED_PS
 }
 
 
 def check_cmd(child, cmd, expected):
     child.sendline(cmd)
     for line in expected:
-        child.expect_exact(line)
+        child.expect(line)
 
 
 def testfunc(child):

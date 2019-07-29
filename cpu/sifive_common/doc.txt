@@ -1,0 +1,5 @@
+/**
+ * @defgroup        cpu_sifive_common SiFive Common
+ * @ingroup         cpu
+ * @brief           Implementation of SiFive RISCV
+ */

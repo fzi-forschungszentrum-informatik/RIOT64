@@ -83,7 +83,6 @@ import shutil
 import logging
 import argparse
 import subprocess
-import collections
 
 LOG_HANDLER = logging.StreamHandler()
 LOG_HANDLER.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
@@ -318,8 +317,9 @@ class RIOTApplication():
 
         if runtest:
             if self.has_test():
-                setuptasks = collections.OrderedDict(
-                    [('flash', ['flash-only'])])
+                # setuptasks = collections.OrderedDict(
+                #    [('flash', ['flash-only'])])
+                setuptasks = {}
                 self.make_with_outfile('test', self.TEST_TARGETS,
                                        save_output=True, setuptasks=setuptasks)
                 if clean_after:
@@ -386,19 +386,28 @@ class RIOTApplication():
             except subprocess.CalledProcessError as err:
                 self._make_handle_error(taskname, err)
 
-        # Run make command
-        try:
-            output = self.make(args)
-            if not save_output:
-                output = ''
-            self._write_resultfile(name, 'success', output)
-            return output
-        except subprocess.CalledProcessError as err:
-            self._make_handle_error(name, err)
+        retry = True
+        tryCounter = 1
+        while retry:
+            # Run make command
+            try:
+                output = self.make(args)
+                if not save_output:
+                    output = ''
+                self._write_resultfile(name, 'success', output)
+                retry = False
+                return output
+            except subprocess.CalledProcessError as err:
+                if name == 'test' and tryCounter < 3:
+                    tryCounter += 1
+                    self.logger.info('Test retry number %d', tryCounter)
+                else:
+                    retry = False
+                    self._make_handle_error(name, err)
 
     def _make_get_previous_output(self, name):
-        """Get previous result output for step `name`.
-
+        """
+        Get previous result output for step `name`.
         Returns `output` if it is there, None if not.
         """
         try:

@@ -1,0 +1,17 @@
+USEMODULE += newlib_syscalls_riscv
+USEMODULE += sifive_common_periph
+
+USEMODULE += periph
+USEMODULE += periph_common
+USEMODULE += periph_pm
+
+CFLAGS += -Wno-pedantic
+
+export RVXLEN = RV64
+export RVARCH ?= rv64imafdc
+export RVMED ?= medany
+export RVABI ?= lp64d
+
+include $(RIOTCPU)/riscv_common/Makefile.include
+include $(RIOTCPU)/sifive_common/Makefile.include
+include $(RIOTMAKE)/arch/riscv.inc.mk

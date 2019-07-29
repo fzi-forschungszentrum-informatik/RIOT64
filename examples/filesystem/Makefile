@@ -49,10 +49,10 @@ USEMODULE += constfs
 
 # Set file systems specific variables
 ifneq (,$(filter littlefs, $(USEMODULE)))
-    CFLAGS += -DVFS_FILE_BUFFER_SIZE=56 -DVFS_DIR_BUFFER_SIZE=44
+    CFLAGS += -DVFS_FILE_BUFFER_SIZE=96 -DVFS_DIR_BUFFER_SIZE=64
 else ifneq (,$(filter spiffs, $(USEMODULE)))
     SPIFFS_NB_FD ?= 8
-    CFLAGS += '-DSPIFFS_FS_FD_SPACE_SIZE=(32 * $(SPIFFS_NB_FD))'
+    CFLAGS += '-DSPIFFS_FS_FD_SPACE_SIZE=(48 * $(SPIFFS_NB_FD))'
 endif
 
 include $(RIOTBASE)/Makefile.include

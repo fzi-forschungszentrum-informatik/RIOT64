@@ -1,17 +1,17 @@
-From 23c0d7e698ec5a31d65d7da172891f6aabad39d5 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Joakim=20Nohlg=C3=A5rd?= <joakim.nohlgard@eistec.se>
-Date: Tue, 15 May 2018 13:17:38 +0200
+From b12ea7fe7c05305a3e89922f6dd40a3a3bf97fa9 Mon Sep 17 00:00:00 2001
+From: Leon Hielscher <Hielscher@fzi.de>
+Date: Wed, 10 Oct 2018 13:08:37 +0200
 Subject: [PATCH] RIOT: Use RIOT random_bytes function instead of randombytes
 
 ---
- haclnacl.c | 6 +++---
+ snapshots/hacl-c/haclnacl.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/haclnacl.c b/haclnacl.c
-index e9bf635309..072a2db6b3 100644
---- a/haclnacl.c
-+++ b/haclnacl.c
-@@ -28,7 +28,7 @@
+diff --git a/snapshots/hacl-c/haclnacl.c b/snapshots/hacl-c/haclnacl.c
+index 42e9dc3..fcd629f 100644
+--- a/snapshots/hacl-c/haclnacl.c
++++ b/snapshots/hacl-c/haclnacl.c
+@@ -50,7 +50,7 @@
  #include "NaCl.h"
  
  
@@ -20,16 +20,16 @@ index e9bf635309..072a2db6b3 100644
  
  
  /* HACL* Primitives and Constructions */
-@@ -93,7 +93,7 @@ int crypto_auth_verify(const unsigned char *tag, const unsigned char *input, uns
+@@ -115,7 +115,7 @@ int crypto_auth_verify(const uint8_t *tag, const uint8_t *input, uint64_t input_
  
  
- int crypto_box_keypair(unsigned char *pk, unsigned char *sk){
+ int crypto_box_keypair(uint8_t *pk, uint8_t *sk){
 -  randombytes(sk, 32);
 +  random_bytes(sk, 32);
    uint8_t basepoint[32] = {9};
    curve25519_scalarmult(pk, sk, basepoint);
    return 0;
-@@ -241,7 +241,7 @@ int crypto_sign_open(unsigned char *unsigned_msg, unsigned long long *unsigned_m
+@@ -263,7 +263,7 @@ int crypto_sign_open(uint8_t *unsigned_msg, uint64_t *unsigned_msg_len, const ui
  }
  
  int crypto_sign_keypair(uint8_t pk[32], uint8_t sk[64]){
@@ -39,5 +39,6 @@ index e9bf635309..072a2db6b3 100644
    for (int i = 0; i < 32; i++) sk[32+i] = pk[i];
    return 0;
 -- 
-2.17.0
+2.7.4
 
+@s

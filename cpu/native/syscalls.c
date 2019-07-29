@@ -5,6 +5,7 @@
  * sure no context switches happen during a system call.
  *
  * Copyright (C) 2013 Ludwig Knüpfer <ludwig.knuepfer@fu-berlin.de>
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -270,10 +271,14 @@ int puts(const char *s)
 __attribute__((__format__ (__printf__, 1, 0)))
 char *make_message(const char *format, va_list argp)
 {
-    int size = 100;
+    int size = 128;
     char *message, *temp;
 
+    va_list orgList;
+    va_copy(orgList, argp);
+
     if ((message = malloc(size)) == NULL) {
+        va_end(orgList);
         return NULL;
     }
 
@@ -290,8 +295,11 @@ char *make_message(const char *format, va_list argp)
         }
         else {
             message = temp;
+            va_copy(argp, orgList);
         }
     }
+
+    va_end(orgList);
 }
 
 int printf(const char *format, ...)

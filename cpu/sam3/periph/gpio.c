@@ -2,6 +2,7 @@
  * Copyright (C) 2014 Hauke Petersen <devel@haukepetersen.de>
  *               2015 Hamburg University of Applied Sciences
  *               2015 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -314,7 +315,7 @@ static inline void isr_handler(Pio *port, int port_num)
     uint32_t status = (port->PIO_ISR & port->PIO_IMR);
 
     for (int i = 0; i < 32; i++) {
-        if (status & (1 << i)) {
+        if (status & (1u << i)) {
             int ctx = _ctx(port_num, i);
             exti_ctx[ctx].cb(exti_ctx[ctx].arg);
         }

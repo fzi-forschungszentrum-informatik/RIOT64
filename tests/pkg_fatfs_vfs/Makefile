@@ -4,11 +4,11 @@ include ../Makefile.tests_common
 USEMODULE += fatfs_vfs
 FEATURES_OPTIONAL += periph_rtc
 
-CFLAGS += -DVFS_FILE_BUFFER_SIZE=72 -DVFS_DIR_BUFFER_SIZE=44
+CFLAGS += -DVFS_FILE_BUFFER_SIZE=96 -DVFS_DIR_BUFFER_SIZE=64
 
 FATFS_IMAGE_FILE_SIZE_MIB ?= 128
 
-ifeq ($(BOARD),native)
+ifneq (,$(filter $(BOARD),native native64))
   USEMODULE += mtd_native
 
   #overwrite default mtd_native-config to use fat image as flash device
@@ -45,7 +45,7 @@ BOARD_WHITELIST := airfy-beacon arduino-due arduino-duemilanove arduino-mega2560
                    remote-revb samd21-xpro saml21-xpro samr21-xpro \
                    sensebox_samd21 sltb001a sodaq-autonomo sodaq-explorer \
                    spark-core stm32f0discovery stm32f3discovery \
-                   stm32f4discovery udoo waspmote-pro yunjia-nrf51822 native
+                   stm32f4discovery udoo waspmote-pro yunjia-nrf51822 native native64
 
 TEST_DEPS += image
 

@@ -81,7 +81,7 @@ class Board(object):
         def _reset_native_execute(obj, application, env=None, *args, **kwargs):
             pass
 
-        if (name == "native") and (reset is None):
+        if (name in ["native", "native64"]) and (reset is None):
                 reset = _reset_native_execute
 
         self.name = name
@@ -309,7 +309,15 @@ def test_triple_send(board_group, application, env=None):
 
 
 if __name__ == "__main__":
-    TestStrategy().execute([BoardGroup((Board("native", "tap0"),
-                            Board("native", "tap1")))],
+    board_name = os.environ.get('BOARD')
+    if board_name is None:
+        board_name = "native"
+    else:
+        if board_name not in ["native", "native64"]:
+            print("ERROR: Invalid Board \'%s\'. Aborting. " % board_name)
+            sys.exit(1)
+
+    TestStrategy().execute([BoardGroup((Board(board_name, "tap0"),
+                            Board(board_name, "tap1")))],
                            [test_ipv6_send, test_udpv6_send, test_tcpv6_send,
                             test_triple_send])

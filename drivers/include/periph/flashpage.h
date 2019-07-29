@@ -104,7 +104,7 @@ enum {
  *
  * @return              starting memory address of the given page
  */
-static inline void *flashpage_addr(int page)
+static inline void *flashpage_addr(uintptr_t page)
 {
     return (void *)(CPU_FLASH_BASE + (page * FLASHPAGE_SIZE));
 }
@@ -122,7 +122,7 @@ static inline void *flashpage_addr(int page)
  */
 static inline int flashpage_page(void *addr)
 {
-    return (int)(((int)addr - CPU_FLASH_BASE) / FLASHPAGE_SIZE);
+    return (uintptr_t)(((uintptr_t)addr - CPU_FLASH_BASE) / FLASHPAGE_SIZE);
 }
 
 /**

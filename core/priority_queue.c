@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013, 2014 Freie Universität Berlin
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -83,6 +84,6 @@ void priority_queue_print(priority_queue_t *root)
 
 void priority_queue_print_node(priority_queue_node_t *node)
 {
-    printf("Data: %u Priority: %lu Next: %u\n", (unsigned int) node->data, (unsigned long) node->priority, (unsigned int)node->next);
+    printf("Data: %u Priority: %lu Next: %"PRIxPTR"\n", (unsigned int) node->data, (unsigned long) node->priority, (uintptr_t)node->next);
 }
 #endif

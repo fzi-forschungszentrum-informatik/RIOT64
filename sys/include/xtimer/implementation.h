@@ -2,6 +2,7 @@
  * Copyright (C) 2015 Kaspar Schleiser <kaspar@schleiser.de>
  *               2016 Eistec AB
  *               2018 Josua Arndt
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -18,6 +19,7 @@
  * @author  Kaspar Schleiser <kaspar@schleiser.de>
  * @author  Joakim Nohlgård <joakim.nohlgard@eistec.se>
  * @author  Josua Arndt <jarndt@ias.rwth-aachen.de>
+ * @author      Leon Hielscher <hielscher@fzi.de>
  *
  */
 #ifndef XTIMER_IMPLEMENTATION_H
@@ -47,18 +49,36 @@ extern volatile uint32_t _xtimer_high_cnt;
  */
 static inline uint32_t _xtimer_lltimer_now(void)
 {
+#ifdef TIMER_64BIT_HW
+	return (uint32_t)(timer_read(XTIMER_DEV) & 0xFFFFFFFF);
+#else
     return timer_read(XTIMER_DEV);
+#endif
 }
+
+#ifdef TIMER_64BIT_HW
+static inline uint64_t _xtimer_lltimer_now64(void)
+{
+	return timer_read(XTIMER_DEV);
+}
+#endif
+
 
 /**
  * @brief drop bits of a value that don't fit into the low-level timer.
  */
+#ifdef TIMER_64BIT_HW
+static inline uint64_t _xtimer_lltimer_mask(uint64_t val) {
+	return val;
+}
+#else
 static inline uint32_t _xtimer_lltimer_mask(uint32_t val)
 {
     /* cppcheck-suppress shiftTooManyBits
      * (reason: cppcheck bug. `XTIMER_MASK` is zero when `XTIMER_WIDTH` is 32) */
     return val & ~XTIMER_MASK;
 }
+#endif
 
 /**
  * @{
@@ -80,7 +100,11 @@ uint64_t _xtimer_now64(void);
  * @param[in] timer   pointer to xtimer_t which is added to the list.
  * @param[in] target  Absolute target value in ticks.
  */
+#ifdef TIMER_64BIT_HW
+int _xtimer_set_absolute64(xtimer_t *timer, uint64_t target);
+#else
 int _xtimer_set_absolute(xtimer_t *timer, uint32_t target);
+#endif
 void _xtimer_set(xtimer_t *timer, uint32_t offset);
 void _xtimer_set64(xtimer_t *timer, uint32_t offset, uint32_t long_offset);
 void _xtimer_periodic_wakeup(uint32_t *last_wakeup, uint32_t period);
@@ -152,6 +176,10 @@ static inline uint64_t xtimer_now_usec64(void)
 }
 
 static inline void _xtimer_spin(uint32_t offset) {
+#ifdef TIMER_64BIT_HW
+	uint64_t start = _xtimer_lltimer_now64();
+	while ((_xtimer_lltimer_now64() - start) < (uint64_t)offset);
+#else
     uint32_t start = _xtimer_lltimer_now();
 #if XTIMER_MASK
     offset = _xtimer_lltimer_mask(offset);
@@ -159,7 +187,15 @@ static inline void _xtimer_spin(uint32_t offset) {
 #else
     while ((_xtimer_lltimer_now() - start) < offset);
 #endif
+#endif
 }
+
+#ifdef TIMER_64BIT_HW
+static inline void _xtimer_spin64(uint64_t offset) {
+	uint64_t start = _xtimer_lltimer_now64();
+	while ((_xtimer_lltimer_now64() - start) < (uint64_t)offset);
+}
+#endif
 
 static inline void _xtimer_tsleep32(uint32_t ticks)
 {

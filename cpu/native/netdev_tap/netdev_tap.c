@@ -3,6 +3,7 @@
  *                    Martine Lenders <mlenders@inf.fu-berlin.de>
  *                    Kaspar Schleiser <kaspar@schleiser.de>
  *                    Ell-i open source co-operative
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser General
  * Public License v2.1. See the file LICENSE in the top level directory for
@@ -28,6 +29,7 @@
 #include <sys/ioctl.h>
 #include <sys/uio.h>
 #include <unistd.h>
+#include <ctype.h>
 
 /* needs to be included before native's declarations of ntohl etc. */
 #include "byteorder.h"
@@ -386,4 +388,54 @@ static int _init(netdev_t *netdev)
 
     DEBUG("gnrc_tapnet: initialized.\n");
     return 0;
+}
+
+static void parseIPv4Address(char * interfaceName, uint8_t addr[4]) {
+	char *str = interfaceName;
+	uint8_t value[4] = {0};
+	size_t index = 0;
+
+	while (*str) {
+		if (isdigit((unsigned char)*str)) {
+			value[index] *= 10;
+			value[index] += *str - '0';
+		} else {
+			index++;
+		}
+		str++;
+	}
+	memcpy(addr, value, 4 * sizeof(uint8_t));
+}
+
+void getIPv4Address(netdev_tap_t *dev, uint8_t addr[4]) {
+	(void) addr;
+
+	struct ifaddrs *ifaddr, *ifa;
+	int s;
+	char host[NI_MAXHOST];
+
+	if (getifaddrs(&ifaddr) == -1) {
+		perror("getifaddrs");
+		exit(EXIT_FAILURE);
+	}
+
+	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+		if (ifa->ifa_addr == NULL)
+		continue;
+
+		s = getnameinfo(ifa->ifa_addr, sizeof(struct sockaddr_in), host,
+				NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
+
+		if ((strcmp(ifa->ifa_name, dev->tap_name) == 0)
+				&& (ifa->ifa_addr->sa_family == AF_INET)) {
+			if (s != 0) {
+				printf("getnameinfo() failed: %s\n", gai_strerror(s));
+				exit(EXIT_FAILURE);
+			}
+
+			parseIPv4Address(host, addr);
+		}
+	}
+
+	freeifaddrs(ifaddr);
 }

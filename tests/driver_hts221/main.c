@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017 HAW Hamburg
+ * Copyright (C) 2019 FZI Forschungszentrum Informatik
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -56,7 +57,7 @@ int main(void)
         if (negative) {
             temp = -temp;
         }
-        printf("H: %u.%u%%, T:%c%u.%u°C\n", (hum / 10), (hum % 10),
+        printf("H: %d.%d%%, T:%c%d.%d°C\n", (hum / 10), (hum % 10),
                (negative ? '-' : ' '), (temp / 10), (temp % 10));
         xtimer_sleep(SLEEP_S);
     }
