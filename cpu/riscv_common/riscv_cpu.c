@@ -412,17 +412,17 @@ void handle_trap(rvxlen_unsigned_t mcause)
 
             rvxlen_unsigned_t mepc = read_csr(mepc);
             
-			#ifdef __riscv_compressed
-			// For compressed instructions we need to check the length of the illegal instruction and its alignment
+#ifdef __riscv_compressed
+  	// For compressed instructions we need to check the length of the illegal instruction and its alignment
             if ((mepc & 0x3) == 0) {
-				uint32_t insn = *((uint32_t*)mepc);
-				if ((insn & INSN_32BIT_MASK) == INSN_32BIT_MASK) {
-					// Aligned 32-Bit Instruction
-					illegal_insn32_jumptable(insn);
-				} else {
-					// Aligned 16-Bit Instruction
-					illegal_insn16_jumptable((uint16_t)insn);
-				}
+		uint32_t insn = *((uint32_t*)mepc);
+		if ((insn & INSN_32BIT_MASK) == INSN_32BIT_MASK) {
+			// Aligned 32-Bit Instruction
+			illegal_insn32_jumptable(insn);
+		} else {
+			// Aligned 16-Bit Instruction
+			illegal_insn16_jumptable((uint16_t)insn);
+		}
             } else {
             	uint32_t insn = (uint32_t)(*((uint16_t*)mepc)); // Ugh..
             	if ((insn & INSN_32BIT_MASK) == INSN_32BIT_MASK) {
@@ -433,9 +433,10 @@ void handle_trap(rvxlen_unsigned_t mcause)
             		illegal_insn16_jumptable((uint16_t)insn);
             	}
             }
-            #else 
-            illegal_insn32_jumptable(insn);
-            #endif   // #ifdef __riscv_compressed       
+#else 
+	    uint32_t insn = *((uint32_t*)mepc);
+	    illegal_insn32_jumptable(insn);
+#endif   // #ifdef __riscv_compressed       
 
         }  else {
             core_panic(PANIC_GENERAL_ERROR, "Unhandled machine mode trap");
