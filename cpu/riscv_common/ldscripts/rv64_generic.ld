@@ -7,7 +7,6 @@ OUTPUT_FORMAT("elf64-littleriscv", "elf64-littleriscv",
 	      "elf64-littleriscv")
 OUTPUT_ARCH(riscv)
 ENTRY(_start)
-SEARCH_DIR("/local_disk/hielsche/riscv/install/riscv64-unknown-elf/lib");
 
 INCLUDE "boardmems.ld";
 
